@@ -23,7 +23,7 @@
 | 目的 | 開く |
 | --- | --- |
 | 私が実際に走らせたコマンドだけを追いたい（再現確認） | [QUICKSTART.ja.md](QUICKSTART.ja.md) / [QUICKSTART.en.md](QUICKSTART.en.md) |
-| 環境バージョン、観察、アスペクト比、JSON spec、よく聞く話との対比まで読みたい | [README.ja.md](README.ja.md) / [README.en.md](README.en.md) |
+| 環境バージョン、検証した結果、アスペクト比、JSON spec、よく聞く話との対比まで読みたい | [README.ja.md](README.ja.md) / [README.en.md](README.en.md) |
 | 変更履歴 | [CHANGELOG.md](CHANGELOG.md) |
 
 ## 同梱ファイル

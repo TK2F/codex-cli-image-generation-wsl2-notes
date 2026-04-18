@@ -40,22 +40,24 @@ section below.
 
 1. [Prerequisites — just the minimum](#prerequisites--just-the-minimum)
 2. [30-second summary](#30-second-summary)
-3. [Environment versions and how to check them](#environment-versions-and-how-to-check-them)
-4. [Scope and what is not asserted](#scope-and-what-is-not-asserted)
-5. [`image_generation` looked disabled by default — two ways I got it working](#image_generation-looked-disabled-by-default--two-ways-i-got-it-working)
-6. [The smallest commands that worked in this run](#the-smallest-commands-that-worked-in-this-run)
-7. [Why the commands use `printf`](#why-the-commands-use-printf)
-8. [Japanese and English prompts](#japanese-and-english-prompts)
-9. [Aspect ratios in practice](#aspect-ratios-in-practice)
-10. [From one image to many — the small helper script I wrote](#from-one-image-to-many--the-small-helper-script-i-wrote)
-11. [doctor → preview → run (the order I used)](#doctor--preview--run-the-order-i-used)
-12. [JSON spec shape](#json-spec-shape)
-13. [Built-in presets](#built-in-presets)
-14. [Common claims vs. what was observed here](#common-claims-vs-what-was-observed-here)
-15. [Before you share the output](#before-you-share-the-output)
-16. [Option cheat sheet](#option-cheat-sheet)
-17. [Mistakes I noticed during the work](#mistakes-i-noticed-during-the-work)
-18. [Official references used](#official-references-used)
+3. [The stack and flow at a glance (diagrams)](#the-stack-and-flow-at-a-glance-diagrams)
+4. [Environment versions and how to check them](#environment-versions-and-how-to-check-them)
+5. [Scope and what is not asserted](#scope-and-what-is-not-asserted)
+6. [`image_generation` looked disabled by default — two ways I got it working](#image_generation-looked-disabled-by-default--two-ways-i-got-it-working)
+7. [The smallest commands that worked in this run](#the-smallest-commands-that-worked-in-this-run)
+8. [Why the commands use `printf`](#why-the-commands-use-printf)
+9. [Japanese and English prompts](#japanese-and-english-prompts)
+10. [Aspect ratios in practice](#aspect-ratios-in-practice)
+11. [From one image to many — the small helper script I wrote](#from-one-image-to-many--the-small-helper-script-i-wrote)
+12. [doctor → preview → run (the order I used)](#doctor--preview--run-the-order-i-used)
+13. [JSON spec shape](#json-spec-shape)
+14. [Built-in presets](#built-in-presets)
+15. [Common claims vs. what was observed here](#common-claims-vs-what-was-observed-here)
+16. [Before you share the output](#before-you-share-the-output)
+17. [Option cheat sheet](#option-cheat-sheet)
+18. [My own small mistakes, shared as-is](#my-own-small-mistakes-shared-as-is)
+19. [A note for readers new to the tooling](#a-note-for-readers-new-to-the-tooling)
+20. [Official references used](#official-references-used)
 
 ---
 
@@ -108,6 +110,61 @@ the same commands is where the report earns its usefulness.
   keep once the workflow moved from one image to several.
 - The Codex CLI docs explicitly state the CLI supports image generation
   and editing ([reference](#official-references-used)).
+
+## The stack and flow at a glance (diagrams)
+
+A few quick diagrams to show how the pieces fit together. GitHub
+renders Mermaid natively, so these are visible directly in the UI.
+
+**The stack that was tested (top to bottom)**
+
+```mermaid
+flowchart TB
+  W[Windows 11<br/>Host OS] --> WSL[WSL2<br/>Microsoft Linux runtime]
+  WSL --> U[Ubuntu LTS]
+  U --> B[Bash shell]
+  B --> NVM[Node.js LTS via nvm]
+  NVM --> C[Codex CLI<br/>codex-cli 0.121.0]
+  C --> CE[codex exec<br/>non-interactive mode]
+```
+
+**Minimum generation and edit command flow**
+
+```mermaid
+flowchart LR
+  subgraph Gen[Generation]
+    P1[printf composes multi-line prompt] -->|pipe| E1[codex exec --enable image_generation -]
+    E1 --> O1[PNG<br/>cwd or ~/.codex/generated_images]
+  end
+  subgraph Edit[Editing]
+    I1[One or more input PNGs] --> E2[codex exec --enable image_generation -i input &quot;prompt&quot;]
+    E2 --> O2[Edited PNG]
+  end
+```
+
+**Rough flow of the bundled `codex-image-batch.sh`**
+
+```mermaid
+flowchart TD
+  Start[Script start] --> Pre{Mode}
+  Pre -->|--doctor| Doc[Report deps / PATH / feature<br/>does not call Codex]
+  Pre -->|--preview| Pv[Print prompts and commands<br/>does not call Codex]
+  Pre -->|--manual| Man[Prompt for one job interactively]
+  Pre -->|--spec JSON| Spec[Build jobs array from JSON]
+  Spec --> Loop[Iterate jobs in order]
+  Man --> Loop
+  Loop --> Exec[codex exec --enable image_generation]
+  Exec --> Ok{Success?}
+  Ok -->|yes| Out[Emit PNG and relative path]
+  Ok -->|no, retries left| Retry[Wait --retry-delay seconds] --> Exec
+  Ok -->|no retries left| Fail[Record job as failed in summary]
+  Out --> Sum[Per-job raw log<br/>and run summary JSON]
+  Fail --> Sum
+```
+
+These diagrams describe the flow used in this report and the helper
+script; they do not represent the internal behavior of the Codex CLI
+itself.
 
 ## Environment versions and how to check them
 
@@ -579,10 +636,12 @@ touches prompts, logs, or generated images.
 - `--retry-delay N` — seconds between retries (default: 3)
 - `-h`, `--help` — show help
 
-## Mistakes I noticed during the work
+## My own small mistakes, shared as-is
 
-Observations, not warnings. These are missteps I either made myself or
-heard about repeatedly. Shared as part of the reproduction record.
+This section lists basic mistakes I made along the way. Seasoned
+terminal users will likely find nothing new here, but for readers
+who are newer to CLI work or WSL, this kind of "I stepped on this
+one" list can shorten the path.
 
 - Running the script in Windows PowerShell instead of WSL Bash. The
   commands here were written for WSL/Linux shells.
@@ -597,6 +656,49 @@ heard about repeatedly. Shared as part of the reproduction record.
 - Assuming Windows-style paths would fail. In practice, common
   `C:\...` and `\\wsl.localhost\...` forms were normalized by the
   helper script during this test.
+
+## A note for readers new to the tooling
+
+This short section is a courtesy for readers who are still getting
+comfortable with Codex CLI, Bash, WSL2, and related tools. It is not
+meant as a complete introduction — only as a minimum of context that
+makes the rest of the document safer to follow.
+
+- **PowerShell and Bash are different shells.** Windows PowerShell and
+  the Bash shell inside WSL look similar but follow different syntax
+  and escaping rules. Every command in this report assumes Bash inside
+  WSL (start menu → Ubuntu). Pasting these commands into Windows
+  PowerShell typically fails with syntax errors.
+- **WSL2** is Microsoft's supported way to run a Linux environment on
+  Windows. Work inside Ubuntu rarely disrupts the Windows side, but on
+  a machine in the middle of important work it is wiser to avoid
+  experimenting with unfamiliar commands.
+- **Environment variables (`$HOME`, `PATH`, …)** control where the
+  shell looks for programs and what certain tools read at startup.
+  Lines that begin with `export` change the current shell's behavior.
+  Avoid pasting `export` lines whose meaning is unclear to you.
+- **Commands with `sudo`** run with administrator privileges. Typical
+  examples like `sudo apt install ...` are standard package
+  installation, but any `sudo` line whose effect is unclear should be
+  skipped until you can confirm it.
+- **nvm** is a tool that switches between Node.js versions. Installing
+  it usually adds a line to your shell profile so it activates on each
+  new terminal. If `codex: command not found` appears after a clean
+  install, opening a fresh terminal often resolves it.
+- **First login to `codex`** opens a browser window for OpenAI account
+  authorization. The flow is straightforward once the permission page
+  appears, but if you have any doubts, read the Codex CLI docs before
+  starting.
+- **Side effects of the commands** — `--doctor` and `--preview` never
+  call Codex or generate images. Starting with those two, then moving
+  on to real runs, is the safer path.
+
+If you are unsure about terminal operations, the safest approach is to
+**sit together with an engineer you trust, or a colleague familiar
+with these tools, and walk through the steps once together.** Working
+alone is also fine, but take your time — read the official docs linked
+below, and go line by line. This document is shared as a reference
+that can shorten that process, not as a replacement for it.
 
 ## Official references used
 
