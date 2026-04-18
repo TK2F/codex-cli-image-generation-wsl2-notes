@@ -35,49 +35,51 @@ section below.
 2. [30-second summary](#30-second-summary)
 3. [Environment versions and how to check them](#environment-versions-and-how-to-check-them)
 4. [Scope and what is not asserted](#scope-and-what-is-not-asserted)
-5. [Smallest "does it really work" proof](#smallest-does-it-really-work-proof)
+5. [The smallest commands that worked in this run](#the-smallest-commands-that-worked-in-this-run)
 6. [Why the commands use `printf`](#why-the-commands-use-printf)
 7. [Japanese and English prompts](#japanese-and-english-prompts)
 8. [Aspect ratios in practice](#aspect-ratios-in-practice)
-9. [From one image to many — where the runner helps](#from-one-image-to-many--where-the-runner-helps)
-10. [doctor → preview → run](#doctor--preview--run)
+9. [From one image to many — how my small helper is positioned](#from-one-image-to-many--how-my-small-helper-is-positioned)
+10. [doctor → preview → run (the order I used)](#doctor--preview--run-the-order-i-used)
 11. [JSON spec shape](#json-spec-shape)
 12. [Built-in presets](#built-in-presets)
 13. [Common claims vs. what was observed here](#common-claims-vs-what-was-observed-here)
 14. [Before you share the output](#before-you-share-the-output)
 15. [Option cheat sheet](#option-cheat-sheet)
-16. [Common pitfalls](#common-pitfalls)
+16. [Mistakes I noticed during the work](#mistakes-i-noticed-during-the-work)
 17. [Official references used](#official-references-used)
 
 ---
 
 ## Prerequisites — just the minimum
 
-Skip this section if you already use Codex CLI and WSL daily. For everyone
-else, a short orientation.
+This report is written for readers with minimum familiarity with Codex
+CLI and WSL2, attempting to reproduce the observations below. It is
+not an introductory tutorial; the upstream projects document their
+own installation procedures far better than a short restatement here.
 
-- **What Codex CLI is**: a command-line tool distributed by OpenAI, run as
-  `codex`. It has both an interactive mode and non-interactive modes like
-  `codex exec`. Official docs: https://developers.openai.com/codex/cli
-- **What WSL2 is**: Microsoft's supported way to run Linux on Windows
-  10/11. Opening "Ubuntu" from the Start menu opens a Linux terminal
-  (i.e., a Bash shell). If you have not installed it yet, the standard
-  first-time step is `wsl --install` in an elevated PowerShell.
-- **PowerShell and Bash are different shells**: they look similar but
-  their syntax and escaping rules differ. All commands in this document
-  assume **Bash inside WSL**. Pasting them into Windows PowerShell or
-  `cmd.exe` usually will not work as written.
-- **Reading the commands**: no leading `$` or shell prompt is shown. Copy
-  the block as-is into the Bash terminal and press Enter. Lines starting
-  with `#` are comments and do not affect execution.
-- **Assumed state**: `codex` is already installed inside the WSL2 Ubuntu
-  environment, and you have completed the one-time login and sandbox
-  setup. If not, follow the Codex CLI docs linked above first.
-- **Safe first steps**: the commands below are ordered from
-  zero-side-effect to full execution. When unsure, start with `--doctor`
-  and `--preview`. Neither of those generates images.
+- **Codex CLI** — OpenAI's command-line tool. The commands in this
+  document center on `codex exec`.
+  Reference: https://developers.openai.com/codex/cli
+- **WSL2** — Microsoft's supported way to run Linux on Windows. This
+  report ran inside WSL2 Ubuntu with Bash.
+  Reference: https://learn.microsoft.com/windows/wsl/install
+- **PowerShell and Bash are different shells** — escaping and pipe
+  semantics differ. The commands below assume Bash inside WSL. Native
+  Windows PowerShell behavior is out of scope for this report.
+- **Reading the commands** — code blocks are shown without a leading
+  `$` or shell prompt, so they can be copied as-is into the Bash
+  terminal.
+- **Assumed state** — `codex` is already installed inside the WSL2
+  Ubuntu environment, and the one-time login and sandbox setup have
+  been completed.
+- **Side-effect ordering** — commands are arranged left-to-right by
+  increasing side effect. `--doctor` and `--preview` neither call
+  Codex nor generate images.
 
-From here on, the document is the actual record.
+From here on, the document records commands that were actually run and
+what was observed when they were run. Comparing your own run against
+the same commands is where the report earns its usefulness.
 
 ---
 
@@ -177,9 +179,11 @@ Not asserted:
 - That arbitrary sizes such as `1408x768` are honored literally.
 - Equivalent behavior on native Windows PowerShell.
 
-## Smallest "does it really work" proof
+## The smallest commands that worked in this run
 
-Three minimal examples, in the order we tried them during this run.
+Three one-liners, in the order they were run, each recorded verbatim
+for reproduction. Running the same commands on your side and comparing
+output is the primary intended use of this section.
 
 **Generate one image:**
 
@@ -309,26 +313,42 @@ aspect presets follow that mapping, as shown by `--list-presets`:
 `custom` is a wish, not a contract. Expect the actual output to gravitate
 to a published size.
 
-## From one image to many — where the runner helps
+## From one image to many — how my small helper is positioned
 
-One image does not need a runner. Seven concerns do start to matter once
-a workflow involves a handful:
+Running several jobs at once was an immediate need during this
+write-up. A plain shell loop over `codex exec` would also work, but I
+found myself rewriting the same small pieces (preview, retry, path
+normalization, output recovery) each time, so I condensed them into
+one Bash file for my own use. That is `codex-image-batch.sh`.
 
-- A visible prompt check before the real call (preview).
-- Retrying failed jobs.
-- Pause between jobs.
-- Mixed Linux / Windows-drive / WSL UNC path handling.
-- Recovering the output from `~/.codex/generated_images` when Codex
-  does not copy the PNG into the intended directory.
-- A per-run summary JSON plus per-job raw logs.
-- Not silently overwriting an earlier successful run.
+**It is shared as-is, not as a recommended tool.** The spirit is
+"here is what I ended up using for my workflow; better approaches
+almost certainly exist." Parallel execution tools, Make / Taskfile,
+a custom Python driver, or existing CI orchestrators would all serve
+the same purpose with different tradeoffs. Please pick whatever fits
+your workflow and treat the script here as a starting point or an
+anti-pattern — whichever is more useful.
 
-`codex-image-batch.sh` is a small Bash runner that covers exactly those
-concerns, with no heavy dependencies — `jq` and `python3` are enough.
+For reference, the pieces that ended up earning their place in my
+workflow were these seven:
 
-## doctor → preview → run
+- A visible prompt check before the real call (preview mode).
+- Automatic retry of failed jobs.
+- A small delay between jobs.
+- Normalizing mixed Linux / Windows-drive / WSL UNC paths.
+- Recovering output from `~/.codex/generated_images` when Codex did
+  not copy the PNG into the intended directory.
+- A per-run summary JSON alongside per-job raw logs.
+- Skipping existing outputs unless explicitly asked to overwrite.
 
-On a new machine, this is the least confusing order:
+The script is a single Bash file with only `jq` and `python3` as
+external dependencies, short enough to read through. If you rewrite
+it in another language or structure, please feel free.
+
+## doctor → preview → run (the order I used)
+
+This is the sequence I followed on the test machine while verifying
+the script. It is a record of what I ran, not a prescribed procedure.
 
 ```bash
 bash ./codex-image-batch.sh --doctor
@@ -513,17 +533,24 @@ touches prompts, logs, or generated images.
 - `--retry-delay N` — seconds between retries (default: 3)
 - `-h`, `--help` — show help
 
-## Common pitfalls
+## Mistakes I noticed during the work
 
-- Running the script in Windows PowerShell instead of WSL Bash. This
-  package targets WSL/Linux shells.
-- Pasting a folder path where a JSON file is expected. The runner warns.
-- Skipping preview on a new spec. `--preview` is a cheap safety net.
-- Edit mode without an input image. Edit jobs require at least one.
-- Expecting existing PNGs to be replaced automatically. Defaults skip
-  existing files. Use `--overwrite` to replace them.
-- Assuming Windows-style paths will fail. Common `C:\...` and
-  `\\wsl.localhost\...` forms are converted automatically.
+Observations, not warnings. These are missteps I either made myself or
+heard about repeatedly. Shared as part of the reproduction record.
+
+- Running the script in Windows PowerShell instead of WSL Bash. The
+  commands here were written for WSL/Linux shells.
+- Pasting a folder path where a JSON file is expected. The runner
+  warns when it sees a directory.
+- Running a new spec without `--preview` first. Preview has no side
+  effect and makes prompt / command inspection trivial.
+- Running edit mode without any input image. At least one `-i` path
+  is required.
+- Assuming existing PNGs would be replaced silently. In my run,
+  existing outputs were skipped unless `--overwrite` was passed.
+- Assuming Windows-style paths would fail. In practice, common
+  `C:\...` and `\\wsl.localhost\...` forms were normalized by the
+  runner during this test.
 
 ## Official references used
 
