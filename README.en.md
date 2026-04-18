@@ -52,7 +52,7 @@ section below.
 12. [doctor → preview → run (the order I used)](#doctor--preview--run-the-order-i-used)
 13. [JSON spec shape](#json-spec-shape)
 14. [Built-in presets](#built-in-presets)
-15. [Common claims checked against this repository's results](#common-claims-checked-against-this-repositorys-results)
+15. [What this repository set out to verify, and what the results showed](#what-this-repository-set-out-to-verify-and-what-the-results-showed)
 16. [Before you share the output](#before-you-share-the-output)
 17. [Copy-paste command sheet](#copy-paste-command-sheet)
 18. [Option cheat sheet](#option-cheat-sheet)
@@ -692,7 +692,7 @@ Aspect presets are covered above. Style presets are intentionally small:
 
 Use `--list-presets` for the authoritative current list.
 
-## Common claims checked against this repository's results
+## What this repository set out to verify, and what the results showed
 
 Several claims about Codex CLI image generation circulate online. Below
 is how each one held up during this specific run, together with the
