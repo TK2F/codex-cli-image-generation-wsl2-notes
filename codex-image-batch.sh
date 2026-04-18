@@ -224,7 +224,7 @@ while (($#)); do
 done
 
 if [[ "$UI_MODE" != "auto" && "$UI_MODE" != "cli" ]]; then
-  err "--ui-mode must be auto or cli for the WSL/bash runner."
+  err "--ui-mode must be auto or cli for this WSL/bash script."
   exit 1
 fi
 
@@ -872,7 +872,7 @@ run_job() {
 
     if [[ "$exit_code" -eq 0 && -s "$output_file_path" ]]; then
       if [[ "$copied_from_generated" -eq 1 ]]; then
-        message="Codex finished and the runner recovered the output from ~/.codex/generated_images."
+        message="Codex finished and the script recovered the output from ~/.codex/generated_images."
       else
         message="Completed successfully."
       fi
@@ -933,7 +933,7 @@ if is_image_feature_enabled; then
   info "Codex image_generation feature is already enabled in config."
 else
   image_feature_enabled=0
-  warn "Codex image_generation feature is not enabled in config. The runner will add --enable image_generation per command."
+  warn "Codex image_generation feature is not enabled in config. This script will add --enable image_generation per command."
 fi
 
 run_source="$(choose_mode)"

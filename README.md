@@ -1,74 +1,77 @@
-# Codex CLI で画像生成 × WSL2 Ubuntu — 検証記録と batch runner
+# Codex CLI で画像生成を試した個人メモ（WSL2 Ubuntu / 2026-04-18 時点）
 
-Windows 11 の WSL2 Ubuntu 上の Bash から `codex` を呼び出して、画像生成と
-画像編集が本当にできるのかを実地で確かめた記録と、1 枚から複数枚に
-スケールするための小さな runner をまとめたリポジトリです。
+私（TK2LAB）が Codex と一緒に「Windows 11 の WSL2 Ubuntu + Bash 上で
+`codex` を叩いて、画像生成と画像編集が本当にそのまま通るのか」を確かめて
+いたところ、実際に出力できたので、自分のための覚書として残したものを、
+同じ疑問を持つ方向けに共有するリポジトリです。
 
-> これは TK2LAB と Codex が、Windows 11 + WSL2 + Ubuntu + Bash +
-> `codex-cli 0.121.0` という具体的な組み合わせで確かめた一人称の
-> フィールドレポートです。「この環境でこう試した」「結果はこうだった」
-> 「公式ドキュメントにはこう書かれていた」を並べた記録であり、同じ
-> セットアップを推奨するものでも、同じ手順を読者に勧めるものでも
-> ありません。詳細なバージョン一覧と確認コマンドは
-> [README.ja.md](README.ja.md#検証環境のバージョンと確認コマンド) /
-> [README.en.md](README.en.md#environment-versions-and-how-to-check-them)
-> にまとめています。ぜひお手元で同じコマンドを走らせて、差分を比較して
-> みてください。
+> これは 2026-04-18 時点での、私一人 + Codex 分の検証結果をまとめた
+> 個人的な覚書です。同じコマンドや同じ手順を読者に推奨しているわけでは
+> ありません。Codex CLI はアップデートが早く、今後のリリース、仕様変更、
+> 新しい発見、公式の発表などで、ここに書いている内容が変わったり、
+> 誤解や不備が見つかる可能性は十分にあります。**この時点の 1 つの
+> 参考情報** としてご覧ください。もっと良いコマンドの書き方、フラグの
+> 指定方法、ツールの構成の仕方はきっとあるはずなので、ご自身の環境で
+> いろいろ試していただけるのがこの共有の本来の意図です。
 
-**Validated:** 2026-04-19 / `codex-cli 0.121.0`
-**Shell:** WSL2 Ubuntu の Bash（Windows PowerShell ネイティブ実行は対象外）
-**Validators:** TK2LAB, Codex
+**検証日:** 2026-04-18
+**環境:** Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`
+**検証者:** TK2LAB, Codex（CLI 側）
 
 ## どこから読むか
 
 | 目的 | 開く |
 | --- | --- |
-| まず 1 枚生成してみたい（前提のインストールから） | [QUICKSTART.ja.md](QUICKSTART.ja.md) / [QUICKSTART.en.md](QUICKSTART.en.md) |
-| 検証環境のバージョン、観察詳細、アスペクト比、JSON spec、よく流れてくる話と今回の観察の対比 | [README.ja.md](README.ja.md) / [README.en.md](README.en.md) |
+| 私が実際に走らせたコマンドだけを追いたい（再現確認） | [QUICKSTART.ja.md](QUICKSTART.ja.md) / [QUICKSTART.en.md](QUICKSTART.en.md) |
+| 環境バージョン、観察、アスペクト比、JSON spec、よく聞く話との対比まで読みたい | [README.ja.md](README.ja.md) / [README.en.md](README.en.md) |
 | 変更履歴 | [CHANGELOG.md](CHANGELOG.md) |
 
 ## 同梱ファイル
 
-- `codex-image-batch.sh` — WSL/Bash 向けの runner
-  （one-off / JSON batch / edit、`--doctor` / `--preview` / retry / fallback
-  リカバリ付き）
-- `examples/codex-image-batch.sample.json` — 生成ジョブ × 5
-- `examples/codex-image-edit-batch.sample.json` — 編集ジョブ × 3
+- `codex-image-batch.sh` — 複数枚の生成・編集ジョブを JSON で流せると
+  便利だったので書いた個人的な Bash 補助スクリプト。お勧めではなく、
+  あくまで参考実装です。より良い書き方・設計はきっとあります。
+- `examples/codex-image-batch.sample.json` — 生成ジョブのサンプル × 5
+- `examples/codex-image-edit-batch.sample.json` — 編集ジョブのサンプル × 3
 - `examples/input/README.md` — 編集入力用フォルダのプレースホルダ
 
 ---
 
-# Codex CLI Image Generation in WSL2 Ubuntu — Field Test and Batch Runner
+# Codex CLI Image Generation — Personal Notes (WSL2 Ubuntu, as of 2026-04-18)
 
-This repository is a hands-on record of generating and editing images with
-Codex CLI from a Bash shell inside WSL2 Ubuntu on Windows 11, plus a
-small runner that smooths out the rough edges once one-off commands are
-not enough.
+I (TK2LAB) was checking with Codex whether `codex` could actually be
+driven for image generation and editing from a WSL2 Ubuntu Bash shell on
+Windows 11. Output did come through, so I wrote up the memo I was
+keeping for myself and am sharing it here for anyone wondering the same
+thing.
 
-> This is a first-person field report by TK2LAB and Codex, carried out
-> on Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`. It is not
-> a recommendation of that exact stack or of the steps used. Please
-> validate on your own environment. The full version table and the
-> commands used to read each version are in
-> [README.en.md](README.en.md#environment-versions-and-how-to-check-them).
+> This is a personal record of what one person plus Codex observed on
+> 2026-04-18. It is not a recommendation of the exact commands or the
+> exact steps used here. Codex CLI evolves quickly, and future releases,
+> behavior changes, new findings, or official announcements may render
+> parts of this report outdated or incorrect. **Treat it as a single
+> reference point in time.** Better commands, flag choices, and helper-script
+> designs almost certainly exist — exploring variations on your side is
+> the intended spirit of this share.
 
-**Validated:** 2026-04-19 / `codex-cli 0.121.0`
-**Shell:** Bash inside WSL2 Ubuntu (native Windows PowerShell is out of scope)
-**Validators:** TK2LAB, Codex
+**Date of observation:** 2026-04-18
+**Environment:** Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`
+**Observers:** TK2LAB and Codex (on the CLI side)
 
 ## Start here
 
 | If you want to... | Open |
 | --- | --- |
-| Get one image out today, from zero setup | [QUICKSTART.en.md](QUICKSTART.en.md) / [QUICKSTART.ja.md](QUICKSTART.ja.md) |
-| See the full environment table, observations, claim review, and references | [README.en.md](README.en.md) / [README.ja.md](README.ja.md) |
+| Reproduce the exact commands I ran | [QUICKSTART.en.md](QUICKSTART.en.md) / [QUICKSTART.ja.md](QUICKSTART.ja.md) |
+| Read the full write-up — versions, observations, aspect ratios, JSON spec, and a review of common claims against what I saw here | [README.en.md](README.en.md) / [README.ja.md](README.ja.md) |
 | Review release history | [CHANGELOG.md](CHANGELOG.md) |
 
 ## What ships with this package
 
-- `codex-image-batch.sh` — a small WSL/Bash runner for one-off prompts,
-  JSON batches, and image edits, with doctor, preview, retry, and
-  fallback recovery
-- `examples/codex-image-batch.sample.json` — five generation jobs
-- `examples/codex-image-edit-batch.sample.json` — three edit jobs
+- `codex-image-batch.sh` — a small Bash helper I put together because
+  running several image jobs from a JSON spec was convenient for my own
+  workflow. It is a reference implementation shared as-is, not a
+  recommended tool. Cleaner designs almost certainly exist.
+- `examples/codex-image-batch.sample.json` — five sample generation jobs
+- `examples/codex-image-edit-batch.sample.json` — three sample edit jobs
 - `examples/input/README.md` — placeholder for edit-input images

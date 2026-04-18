@@ -1,23 +1,30 @@
-# Codex CLI Image Generation from WSL2 Ubuntu — Field Test and Batch Runner
+# Codex CLI Image Generation from WSL2 Ubuntu — Personal Notes (as of 2026-04-18)
 
-This is a single end-to-end document for one question: "Can Codex CLI
-really generate and edit images, called from a WSL2 Ubuntu shell on
-Windows 11 — and if so, what is the smallest command that works, and
-where does a batch runner start to earn its keep?"
+This is the memo I kept while TK2LAB and Codex were checking whether
+`codex` could really be driven for image generation and editing from a
+WSL2 Ubuntu Bash shell on Windows 11. Output did come through, so the
+private notes I was keeping for myself have been tidied up and shared
+here for anyone curious about the same question.
 
-It is written to stay fact-based, avoid exaggeration, and separate what
-was actually observed from what was inferred. Official documentation is
-linked for every non-trivial claim.
+The document walks, in the order I ran them, through the smallest
+working commands, whether Japanese and English prompts both went
+through, which aspect ratios produced output, how `image_generation`
+looked on first install, and where a small JSON-driven helper script
+started to earn its keep.
 
-> This repository is a first-person field report by TK2LAB and Codex,
-> recorded against a concrete stack: Windows 11 + WSL2 + Ubuntu + Bash +
-> `codex-cli 0.121.0`. It is not a recommendation of that exact stack or
-> of the steps used. Everything stated is what happened in this run and
-> what the official docs say. Please run the same commands on your
-> environment and compare — that is where the report becomes useful.
+> This is a personal memo captured on 2026-04-18 by one person plus
+> Codex. It is not a recommendation of the exact commands or steps.
+> Codex CLI evolves quickly; future releases, behavior changes, new
+> findings, or official announcements may render parts of this report
+> outdated or incorrect. **Treat it as a single reference point in
+> time.** I may not be able to respond to questions or diffs about
+> this snapshot in a timely manner, so please verify against upstream
+> documentation and feel free to explore better commands, flags, and
+> tooling on your side — that exploration is the intended spirit of
+> this share.
 
-**Validators:** TK2LAB and Codex
-**Validated on:** 2026-04-19
+**Date of observation:** 2026-04-18
+**Observers:** TK2LAB and Codex (on the CLI side)
 **Host OS:** Windows 11
 **Runtime:** Ubuntu on WSL2
 **Shell:** Bash (native Windows PowerShell execution is out of scope)
@@ -35,19 +42,20 @@ section below.
 2. [30-second summary](#30-second-summary)
 3. [Environment versions and how to check them](#environment-versions-and-how-to-check-them)
 4. [Scope and what is not asserted](#scope-and-what-is-not-asserted)
-5. [The smallest commands that worked in this run](#the-smallest-commands-that-worked-in-this-run)
-6. [Why the commands use `printf`](#why-the-commands-use-printf)
-7. [Japanese and English prompts](#japanese-and-english-prompts)
-8. [Aspect ratios in practice](#aspect-ratios-in-practice)
-9. [From one image to many — how my small helper is positioned](#from-one-image-to-many--how-my-small-helper-is-positioned)
-10. [doctor → preview → run (the order I used)](#doctor--preview--run-the-order-i-used)
-11. [JSON spec shape](#json-spec-shape)
-12. [Built-in presets](#built-in-presets)
-13. [Common claims vs. what was observed here](#common-claims-vs-what-was-observed-here)
-14. [Before you share the output](#before-you-share-the-output)
-15. [Option cheat sheet](#option-cheat-sheet)
-16. [Mistakes I noticed during the work](#mistakes-i-noticed-during-the-work)
-17. [Official references used](#official-references-used)
+5. [`image_generation` looked disabled by default — two ways I got it working](#image_generation-looked-disabled-by-default--two-ways-i-got-it-working)
+6. [The smallest commands that worked in this run](#the-smallest-commands-that-worked-in-this-run)
+7. [Why the commands use `printf`](#why-the-commands-use-printf)
+8. [Japanese and English prompts](#japanese-and-english-prompts)
+9. [Aspect ratios in practice](#aspect-ratios-in-practice)
+10. [From one image to many — the small helper script I wrote](#from-one-image-to-many--the-small-helper-script-i-wrote)
+11. [doctor → preview → run (the order I used)](#doctor--preview--run-the-order-i-used)
+12. [JSON spec shape](#json-spec-shape)
+13. [Built-in presets](#built-in-presets)
+14. [Common claims vs. what was observed here](#common-claims-vs-what-was-observed-here)
+15. [Before you share the output](#before-you-share-the-output)
+16. [Option cheat sheet](#option-cheat-sheet)
+17. [Mistakes I noticed during the work](#mistakes-i-noticed-during-the-work)
+18. [Official references used](#official-references-used)
 
 ---
 
@@ -96,8 +104,8 @@ the same commands is where the report earns its usefulness.
 - Output sizes observed here fell into three concrete values:
   **`1024x1024`**, **`1024x1536`**, **`1536x1024`**. Arbitrary ratios
   are requests to the model, not guarantees.
-- The batch runner starts to pay off once the workflow moves from one
-  image to several.
+- A small helper script for JSON-driven batching started to earn its
+  keep once the workflow moved from one image to several.
 - The Codex CLI docs explicitly state the CLI supports image generation
   and editing ([reference](#official-references-used)).
 
@@ -179,41 +187,80 @@ Not asserted:
 - That arbitrary sizes such as `1408x768` are honored literally.
 - Equivalent behavior on native Windows PowerShell.
 
+## `image_generation` looked disabled by default — two ways I got it working
+
+On a fresh install in my environment, `codex features list` showed
+`image_generation` as disabled (`false`). This was what I saw on my
+machine rather than a claim about the canonical default. Two methods
+let me run image generation end-to-end. Both produced output, and
+portrait, landscape, and 1:1 sizes all came through.
+
+**Method A: pass `--enable image_generation` on each `codex exec` call**
+
+```bash
+codex exec --enable image_generation -
+```
+
+Adding the flag was enough to run image generation in my run. The
+bundled `codex-image-batch.sh` follows the same approach: when the
+feature is not already enabled, the script adds `--enable
+image_generation` to each call.
+
+**Method B: set it in `~/.codex/config.toml`**
+
+```toml
+[features]
+image_generation = true
+```
+
+With those two lines in place, interactive `codex` and `codex exec`
+both produced images in my environment without the flag. For
+continuous use, the config-file path felt less fiddly.
+
+New CLI versions may change defaults or the enablement path, so when
+installing a fresh version it is worth checking `codex features list`
+first and deferring to the official Codex CLI documentation.
+
 ## The smallest commands that worked in this run
 
 Three one-liners, in the order they were run, each recorded verbatim
 for reproduction. Running the same commands on your side and comparing
 output is the primary intended use of this section.
 
+The commands below include `--enable image_generation`, reflecting the
+`false`-by-default state I observed. If you already set
+`image_generation = true` in `~/.codex/config.toml` (Method B above),
+the flag can be dropped.
+
 **Generate one image:**
 
 ```bash
-printf 'Use the built-in image generation capability only.\nGenerate a square 1:1 image of a blue sphere on a white background.\nNo text, no logo, no watermark.\n' | codex exec -
+printf 'Use the built-in image generation capability only.\nGenerate a square 1:1 image of a blue sphere on a white background.\nNo text, no logo, no watermark.\n' | codex exec --enable image_generation -
 ```
 
 **Edit one image:**
 
 ```bash
-codex exec -i ./input.png "Use the built-in image editing capability only. Change the background to white. Keep the subject, composition, and colors intact. No text, no logo, no watermark."
+codex exec --enable image_generation -i ./input.png "Use the built-in image editing capability only. Change the background to white. Keep the subject, composition, and colors intact. No text, no logo, no watermark."
 ```
 
 **Edit using one image as base and another as reference:**
 
 ```bash
-codex exec -i ./base.png -i ./reference.png "Use the first image as the base. Transfer the palette and mood from the second image while preserving the composition and main subject of the first image. No text, no logo, no watermark."
+codex exec --enable image_generation -i ./base.png -i ./reference.png "Use the first image as the base. Transfer the palette and mood from the second image while preserving the composition and main subject of the first image. No text, no logo, no watermark."
 ```
 
-Two short sanity checks worth running before the first real call:
+Two short sanity checks I ran before the first real call:
 
 ```bash
 codex --version
 codex features list
 ```
 
-In this run, `codex features list` reported `image_generation` as
-enabled before any of the steps that follow. If that is not the case on
-your machine, the Codex CLI docs linked at the bottom describe how to
-bring the feature into that state.
+In this run, `codex --version` printed `codex-cli 0.121.0`, and
+`codex features list` showed `image_generation` as `false` — which is
+why the three commands above add `--enable image_generation`. If you
+already set it in `config.toml` (Method B), the flag is redundant.
 
 ## Why the commands use `printf`
 
@@ -297,7 +344,7 @@ Those match the sizes published in the OpenAI image-model docs
 
 Popular ratios like Instagram Story (9:16), Instagram feed (4:5), and
 hero-banner (16:9) were handled most cleanly by accepting that the
-underlying model output maps to the three real sizes. The runner's
+underlying model output maps to the three real sizes. The helper script's
 aspect presets follow that mapping, as shown by `--list-presets`:
 
 | preset            | Treated as                                     |
@@ -313,24 +360,23 @@ aspect presets follow that mapping, as shown by `--list-presets`:
 `custom` is a wish, not a contract. Expect the actual output to gravitate
 to a published size.
 
-## From one image to many — how my small helper is positioned
+## From one image to many — the small helper script I wrote
 
-Running several jobs at once was an immediate need during this
-write-up. A plain shell loop over `codex exec` would also work, but I
-found myself rewriting the same small pieces (preview, retry, path
-normalization, output recovery) each time, so I condensed them into
-one Bash file for my own use. That is `codex-image-batch.sh`.
+After the single-image path was working, I wanted to run several jobs
+in a row. Writing out the prompt and `-i` flags command by command
+felt tedious, and a JSON file looked like a convenient way to manage
+the work. So I thought "let me try stitching it together" and put
+together a small Bash script. That became `codex-image-batch.sh`.
 
-**It is shared as-is, not as a recommended tool.** The spirit is
-"here is what I ended up using for my workflow; better approaches
-almost certainly exist." Parallel execution tools, Make / Taskfile,
-a custom Python driver, or existing CI orchestrators would all serve
-the same purpose with different tradeoffs. Please pick whatever fits
-your workflow and treat the script here as a starting point or an
-anti-pattern — whichever is more useful.
+**I am not pitching it as a tool.** It is what I ended up with while
+doing this check; use it if it happens to be useful, and replace it
+freely if something else fits your work better — Make / Taskfile,
+a custom Python driver, parallel execution tools, an existing CI
+orchestrator, and so on. This script works as either a starting point
+or a counter-example, whichever is more helpful.
 
-For reference, the pieces that ended up earning their place in my
-workflow were these seven:
+Seven small conveniences ended up in the script as a natural
+consequence of running several jobs in sequence:
 
 - A visible prompt check before the real call (preview mode).
 - Automatic retry of failed jobs.
@@ -342,13 +388,13 @@ workflow were these seven:
 - Skipping existing outputs unless explicitly asked to overwrite.
 
 The script is a single Bash file with only `jq` and `python3` as
-external dependencies, short enough to read through. If you rewrite
-it in another language or structure, please feel free.
+external dependencies, short enough to read through end to end.
 
 ## doctor → preview → run (the order I used)
 
-This is the sequence I followed on the test machine while verifying
-the script. It is a record of what I ran, not a prescribed procedure.
+The sequence I followed while verifying the script. It is a record
+of what I ran, not a prescribed procedure — the helper script does
+not require this order.
 
 ```bash
 bash ./codex-image-batch.sh --doctor
@@ -380,7 +426,7 @@ that would run. It does not call Codex and it does not generate images.
 bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end
 ```
 
-By default the runner asks for confirmation before a real run. Add
+By default the helper script asks for confirmation before a real run. Add
 `--no-prompt` only when you want to skip that confirmation deliberately.
 
 ```bash
@@ -391,7 +437,7 @@ Manual mode skips the JSON step and lets you enter one job interactively.
 
 ## JSON spec shape
 
-The runner accepts three shapes at the root of the JSON:
+The helper script accepts three shapes at the root of the JSON:
 
 - a single job object
 - an array of job objects
@@ -419,7 +465,7 @@ The third is the most practical once specs grow.
 
 Key points:
 
-- `codex_model` is passed to `codex exec --model` unchanged. The runner
+- `codex_model` is passed to `codex exec --model` unchanged. The helper script
   does not validate the value. Whether a specific model name is accepted
   depends on the Codex CLI and the account at runtime.
 - Relative paths are resolved from the **spec file's own location**, not
@@ -428,7 +474,7 @@ Key points:
 - `mode` is either `generate` or `edit`. For `edit`, supply at least one
   of `input_image` or `input_images`.
 - `subject` and `scene` can be written separately, in which case the
-  runner composes the prompt with the selected aspect and style. If you
+  helper script composes the prompt with the selected aspect and style. If you
   set `prompt` directly, that takes precedence.
 
 Two samples ship with the package:
@@ -501,7 +547,7 @@ repository was pushed; it may also be useful for other work that
 touches prompts, logs, or generated images.
 
 - Absolute personal home paths, removed from prompts, logs, and
-  summary files. The runner writes relative paths where possible; input
+  summary files. The helper script writes relative paths where possible; input
   image names and prompt text were corrected by hand.
 - Internal product or character names, replaced with generic subjects
   in sample prompts (glass bottle, blue sphere, studio product shot).
@@ -540,7 +586,7 @@ heard about repeatedly. Shared as part of the reproduction record.
 
 - Running the script in Windows PowerShell instead of WSL Bash. The
   commands here were written for WSL/Linux shells.
-- Pasting a folder path where a JSON file is expected. The runner
+- Pasting a folder path where a JSON file is expected. The helper script
   warns when it sees a directory.
 - Running a new spec without `--preview` first. Preview has no side
   effect and makes prompt / command inspection trivial.
@@ -550,7 +596,7 @@ heard about repeatedly. Shared as part of the reproduction record.
   existing outputs were skipped unless `--overwrite` was passed.
 - Assuming Windows-style paths would fail. In practice, common
   `C:\...` and `\\wsl.localhost\...` forms were normalized by the
-  runner during this test.
+  helper script during this test.
 
 ## Official references used
 
