@@ -1,5 +1,8 @@
 # Codex CLI で画像生成を試した個人メモ（WSL2 Ubuntu / 2026-04-18 時点）
 
+この `share/` フォルダは、外部共有しやすいように切り出した配布用サブセット
+です。raw log、手元専用の証跡、メンテナンス用メモは含めていません。
+
 私（TK2LAB）が Codex と一緒に「Windows 11 の WSL2 Ubuntu + Bash 上で
 `codex` を叩いて、画像生成と画像編集が本当にそのまま通るのか」を確かめて
 いたところ、実際に出力できたので、自分のための覚書として残したものを、
@@ -51,6 +54,9 @@
 ---
 
 # Codex CLI Image Generation — Personal Notes (WSL2 Ubuntu, as of 2026-04-18)
+
+This `share/` folder is the portable subset intended for external handoff. It
+excludes raw logs, local-only evidence bundles, and maintainer-only notes.
 
 I (TK2LAB) was checking with Codex whether `codex` could actually be
 driven for image generation and editing from a WSL2 Ubuntu Bash shell on

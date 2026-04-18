@@ -2,8 +2,8 @@
 
 ## 2026-04-19 — review refresh
 
-Follow-up refresh based on the re-test evidence captured under
-`review-evidence/20260419-054302/`.
+Follow-up refresh based on the 2026-04-19 re-test that is summarized in
+`docs/RETEST-2026-04-19.md`.
 
 **Changed**
 
@@ -39,7 +39,7 @@ Follow-up refresh based on the re-test evidence captured under
 
 ## 2026-04-19 — initial share
 
-First private-publication cut of a personal memo by TK2LAB and Codex,
+First portable share-package cut of a personal memo by TK2LAB and Codex,
 describing what was observed on 2026-04-18 in a WSL2 Ubuntu Bash shell
 on Windows 11, running `codex-cli 0.121.0`.
 

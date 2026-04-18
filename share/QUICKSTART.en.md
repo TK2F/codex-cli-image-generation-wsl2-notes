@@ -69,7 +69,7 @@ return output in the Bash shell. My own `codex --version` printed
 In my original environment, `codex features list` initially showed
 `image_generation` as disabled (`false`). That was an observation on my
 machine, not a claim about the canonical default. In the 2026-04-19
-re-test captured under `review-evidence/20260419-054302/`,
+follow-up re-test summarized in `docs/RETEST-2026-04-19.md`,
 `image_generation` was already `true`, and generation plus editing both
 worked. The operational conclusions below held up.
 

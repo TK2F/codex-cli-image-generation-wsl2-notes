@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "defaults": {
+    "language": "ja",
+    "codex_model": "gpt-5.4",
+    "output_dir": "./edited-outputs"
+  },
+  "jobs": [
+    {
+      "name": "product_white_bg",
+      "mode": "edit",
+      "aspect_ratio": "square",
+      "input_image": "./input/product.png",
+      "prompt": "この画像の背景を白に変更してください。商品本体の形状とラベルは維持してください。文字、ロゴ、透かしは追加しないでください。"
+    },
+    {
+      "name": "portrait_navy_jacket",
+      "mode": "edit",
+      "aspect_ratio": "portrait",
+      "input_image": "./input/portrait.png",
+      "prompt": "この人物の服だけを深いネイビーのジャケットに変更してください。顔、髪型、ポーズ、構図は維持してください。背景は変更しないでください。"
+    },
+    {
+      "name": "style_transfer_reference",
+      "mode": "edit",
+      "language": "en",
+      "aspect_ratio": "landscape",
+      "input_images": [
+        "./input/base.png",
+        "./input/reference.png"
+      ],
+      "prompt": "Use the first image as the base. Transfer the color palette and mood from the second image while preserving the composition and main subject of the first image. No text, no logo, no watermark."
+    }
+  ]
+}

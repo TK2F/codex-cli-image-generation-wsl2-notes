@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install tooling
+        run: sudo apt-get update && sudo apt-get install -y jq shellcheck
+
+      - name: Bash syntax check
+        run: bash -n codex-image-batch.sh
+
+      - name: ShellCheck
+        run: shellcheck -S warning codex-image-batch.sh
+
+      - name: Validate sample JSON
+        run: |
+          jq empty examples/codex-image-batch.sample.json
+          jq empty examples/codex-image-edit-batch.sample.json
+
+      - name: Verify key docs exist
+        run: |
+          test -f README.md
+          test -f README.ja.md
+          test -f README.en.md
+          test -f QUICKSTART.ja.md
+          test -f QUICKSTART.en.md
+          test -f CHANGELOG.md
+          test -f docs/RETEST-2026-04-19.md
+          test -f examples/gallery/README.md
+          test -f examples/gallery/blue-sphere-no-enable.png
+          test -f examples/gallery/blue-sphere-with-enable.png
+          test -f examples/gallery/edit-black-and-white.png
+          test -f examples/gallery/blue-sphere-full-auto.png

@@ -246,7 +246,26 @@ Claude Code によるセルフレビューと、OpenAI 公式ドキュメント
 4. `codex exec --help` の現時点の全フラグ一覧と、公式 reference 記載
    との整合。
 
-## 7. このメモ自体の更新ログ
+## 7. ユーザー追試の反映記録（2026-04-19）
+
+`review-evidence/20260419-054302/` に、実ユーザー環境での追試結果を保存。
+この追試で、少なくとも `codex-cli 0.121.0` / `gpt-5.4` / WSL2 Ubuntu
+の組み合わせでは次が確認できた。
+
+- 画像生成・画像編集そのものは成功した。
+- 4 テスト中 4 テストで PNG は生成された。
+- 実ファイルは `~/.codex/generated_images/<session-id>/ig_*.png` に保存され、
+  prompt や `-o` で指示した workdir 直下のパスには現れなかった。
+- LLM が返す `Output path: ...` は、実在しないパスを示すケースがあった。
+- `--enable image_generation` は、`image_generation = true` 済み環境では
+  実質 no-op だった。
+- `--full-auto -c sandbox_workspace_write.network_access=true` を付けても
+  保存挙動は変わらず、network access は必須ではなかった。
+
+この結果を踏まえ、README / QUICKSTART / CHANGELOG / スクリプト説明の
+更新が必要になった。
+
+## 8. このメモ自体の更新ログ
 
 - **2026-04-19（初版）**: TK2LAB と Codex で 2026-04-18 に実施した
   検証を反映し、公開リポジトリの MAINTAINER-NOTES として配置。
