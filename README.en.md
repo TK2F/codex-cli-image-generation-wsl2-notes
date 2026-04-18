@@ -54,10 +54,11 @@ section below.
 14. [Built-in presets](#built-in-presets)
 15. [Common claims vs. what was observed here](#common-claims-vs-what-was-observed-here)
 16. [Before you share the output](#before-you-share-the-output)
-17. [Option cheat sheet](#option-cheat-sheet)
-18. [My own small mistakes, shared as-is](#my-own-small-mistakes-shared-as-is)
-19. [A note for readers new to the tooling](#a-note-for-readers-new-to-the-tooling)
-20. [Official references used](#official-references-used)
+17. [Copy-paste command sheet](#copy-paste-command-sheet)
+18. [Option cheat sheet](#option-cheat-sheet)
+19. [My own small mistakes, shared as-is](#my-own-small-mistakes-shared-as-is)
+20. [A note for readers new to the tooling](#a-note-for-readers-new-to-the-tooling)
+21. [Official references used](#official-references-used)
 
 ---
 
@@ -252,61 +253,109 @@ On a fresh install in my environment, `codex features list` showed
 `image_generation` as disabled (`false`). This is what I saw on my
 machine rather than a claim about the canonical default.
 
+### Preconditions to confirm first
+
+Before trying to enable image generation, three things are worth
+checking. With all three in place, image generation ran end-to-end in
+my environment.
+
+- **Codex CLI version.** Older `codex-cli` releases may not include
+  the image-generation subcommands or the built-in tool. I tested
+  `codex-cli 0.121.0`. Run `codex --version` to confirm yours.
+- **Text-side model is GPT-5.4 or later.** OpenAI's
+  [image generation tool guide](https://developers.openai.com/api/docs/guides/tools-image-generation)
+  lists models that can drive the built-in `image_gen` tool,
+  including GPT-5 / 5.2 / **5.4** / 5.4-mini / 5.4-nano. I did not
+  test the same workflow on pre-5.4 models.
+- **Codex login is complete.** Start `codex` once interactively to
+  finish the browser authorization before anything else.
+
 > **Cross-check (2026-04-19)**: The OpenAI Codex docs
 > ([Features – Codex CLI](https://developers.openai.com/codex/cli/features)
 > and [Config basics](https://developers.openai.com/codex/config-basic))
 > do not list `image_generation` in their public feature tables at the
 > time of writing. OpenAI's
 > [image generation tool guide](https://developers.openai.com/api/docs/guides/tools-image-generation)
-> notes that image generation is exposed as a built-in `image_gen` tool
-> that Codex can use by default. In other words,
-> **on some installations, simply prompting Codex without any flag may
-> be enough to trigger image generation.** I recommend trying without
-> a flag first, and only falling back to the two methods below if the
-> call is refused.
+> notes that image generation is exposed as a built-in `image_gen`
+> tool that Codex can use by default. In other words,
+> **on some installations, simply prompting Codex without any flag or
+> config change may be enough to trigger image generation.** Try that
+> first, and only fall back to the two methods below if the call is
+> refused.
 >
 > Separately,
 > [Features – Codex CLI](https://developers.openai.com/codex/cli/features)
-> does document `codex features enable <feature>` /
+> documents `codex features enable <feature>` /
 > `codex features disable <feature>` / `codex features list` as
 > persistent management subcommands. I did not verify
-> `codex features enable image_generation` myself. If you try it, also
-> confirm whether `image_generation` appears in your own
-> `codex features list` output first.
+> `codex features enable image_generation` myself. If you try it,
+> confirm first that `image_generation` actually appears in your
+> `codex features list` output.
 
-Here are the two methods I confirmed working in my environment. Both
-produced output, and portrait, landscape, and 1:1 sizes all came
-through.
+Below are the two methods I confirmed working, **listed in the order I
+would recommend trying them**.
 
-**Method A: pass `--enable image_generation` on each `codex exec` call**
-
-```bash
-codex exec --enable image_generation -
-```
-
-Per the
-[Codex CLI reference](https://developers.openai.com/codex/cli/reference),
-`--enable` is a global flag that is internally equivalent to
-`-c features.<name>=true`. Adding it was enough to run image generation
-in my run. The bundled `codex-image-batch.sh` only adds this flag when
-`codex features list` reports the feature as disabled.
-
-**Method B: set it in `~/.codex/config.toml`**
+### Method A (preferred): set it in `~/.codex/config.toml`
 
 ```toml
 [features]
 image_generation = true
 ```
 
-With those two lines in place, interactive `codex` and `codex exec`
-both produced images in my environment without the flag. For continued
-use the config-file path felt less fiddly. See
-[Config basics](https://developers.openai.com/codex/config-basic) for
-the full config file structure.
+I recommend this path first because `config.toml` is where
+[Config basics](https://developers.openai.com/codex/config-basic)
+places "your personal defaults." Adding a `key = true` line under
+`[features]` is the documented persistent way to turn a feature on.
 
-New CLI versions may change defaults or the enablement path. When
-installing a fresh version it is worth checking `codex features list`
-and the official docs linked above before proceeding.
+**After saving the file, restart `codex` if an interactive session
+is already running.** The config file is read at startup, so a
+running session will not pick up the change until you restart it.
+For `codex exec`, a fresh process spawns each call, so the next call
+sees the new config.
+
+With those two lines in place, both the interactive `codex` and
+`codex exec` produced images in my environment with no further flag.
+
+### Method B: pass `--enable image_generation` on a single call
+
+```bash
+codex exec --enable image_generation -
+```
+
+Use this if you would rather not edit `config.toml`, or if you want a
+one-off activation. Per the
+[Codex CLI reference](https://developers.openai.com/codex/cli/reference),
+`--enable` is a global flag that is internally equivalent to
+`-c features.<name>=true`. The bundled `codex-image-batch.sh` only
+adds this flag when `codex features list` reports the feature as
+disabled (i.e., when `config.toml` has not been set).
+
+New CLI versions may change defaults or the enablement path. On a
+fresh version, check `codex --version`, `codex features list`, and
+the official docs linked above before assuming the two methods here
+still apply.
+
+### Decision flow — which path to try
+
+Prose can be hard to follow when the decision has this many branches,
+so here is the same logic as a flowchart.
+
+```mermaid
+flowchart TD
+  Start[Run codex --version and<br/>codex features list to check state] --> V{codex-cli version?}
+  V -->|too old| Upd[Update per the official docs]
+  V -->|0.121.0 or later| M{Text-side model<br/>GPT-5.4 or later?}
+  M -->|No| MCheck[Check the image generation tool guide<br/>model compatibility table]
+  M -->|Yes| Bare[Send an image prompt<br/>without any flag or config change]
+  Bare -->|image generated| Done[Done]
+  Bare -->|refused / no output| Cfg[Method A: set<br/>image_generation = true<br/>in config.toml, restart codex]
+  Cfg -->|image generated| Done
+  Cfg -->|still no output| Flag[Method B: add<br/>--enable image_generation<br/>to codex exec]
+  Flag -->|image generated| Done
+  Flag -->|no output| Docs[Re-check codex features list<br/>and the official docs<br/>investigate upstream issues]
+  Upd --> V
+  MCheck --> Bare
+```
 
 ## The smallest commands that worked in this run
 
@@ -314,10 +363,12 @@ Three one-liners, in the order they were run, each recorded verbatim
 for reproduction. Running the same commands on your side and comparing
 output is the primary intended use of this section.
 
-The commands below include `--enable image_generation`, reflecting the
-`false`-by-default state I observed. If you already set
-`image_generation = true` in `~/.codex/config.toml` (Method B above),
-the flag can be dropped.
+The commands below include `--enable image_generation` defensively.
+If you already set `image_generation = true` in `~/.codex/config.toml`
+(Method A above, the path I recommend), the flag is unnecessary.
+If your Codex install surfaces the built-in `image_gen` tool by
+default (see the cross-check note earlier in the section), you may
+not need either the flag or the config change.
 
 **Generate one image:**
 
@@ -653,6 +704,119 @@ touches prompts, logs, or generated images.
 - Output images not intended for the audience, excluded. The
   `.gitignore` already excludes `examples/outputs/`,
   `examples/edited-outputs/`, `*.log.txt`, and `codex-image-batch-run-*.json`.
+
+## Copy-paste command sheet
+
+The commands I used most often during this check, grouped by purpose.
+Reading top-down walks through the **check → enable → generate →
+batch** path in four stages.
+
+### 1. Check current state (no side effects)
+
+```bash
+# Codex CLI version
+codex --version
+
+# Current feature state (look for image_generation if it appears)
+codex features list
+
+# Surrounding tools
+node --version
+jq --version
+python3 --version
+bwrap --version   # bubblewrap
+```
+
+### 2. Enable `image_generation` (Method A: `config.toml` — preferred)
+
+```bash
+# Make sure ~/.codex exists
+mkdir -p ~/.codex
+
+# Keep a backup of any existing config
+[ -f ~/.codex/config.toml ] && cp -n ~/.codex/config.toml ~/.codex/config.toml.bak
+
+# If your config.toml already contains a [features] section, add the single
+# line `image_generation = true` to it by hand instead of using the block below.
+cat <<'EOF' >> ~/.codex/config.toml
+
+[features]
+image_generation = true
+EOF
+
+# Sanity check
+cat ~/.codex/config.toml
+```
+
+After saving, **restart any interactive `codex` session**. The config
+file is read at startup; a running session will not pick up the change
+until it is restarted. `codex exec` spawns a fresh process each call,
+so the next call reads the updated config.
+
+### 3. Enable `image_generation` (Method B: per-call flag)
+
+Use this when you would rather not edit `config.toml`.
+
+```bash
+# Add --enable image_generation in front of the usual invocation
+codex exec --enable image_generation -
+```
+
+### 4. Generate an image (one-liner / `printf` patterns)
+
+```bash
+# Minimum: a blue sphere on white, English prompt
+printf 'Use the built-in image generation capability only.\nGenerate a square 1:1 image of a blue sphere on a white background.\nNo text, no logo, no watermark.\n' | codex exec -
+
+# Japanese prompt
+printf 'built-in の画像生成機能だけを使ってください。\n正方形 1:1、1024x1024 で、白背景に青い球体を 1 枚描いてください。\n文字、ロゴ、透かしは入れないでください。\n' | codex exec -
+
+# When config.toml is not set, add --enable explicitly
+printf '...' | codex exec --enable image_generation -
+
+# Multi-line prompts as a heredoc
+codex exec - <<'EOS'
+Use the built-in image generation capability only.
+Generate a square 1:1 image of a blue sphere on a white background.
+No text, no logo, no watermark.
+EOS
+```
+
+### 5. Edit an image
+
+```bash
+# Edit a single image (swap background to white)
+codex exec -i ./input.png "Use the built-in image editing capability only. Change the background to white. Keep the subject, composition, and colors intact. No text, no logo, no watermark."
+
+# Two images — prompt declares first = base, second = reference
+codex exec -i ./base.png -i ./reference.png "Use the first image as the base. Transfer the palette and mood from the second image while preserving the composition and main subject of the first image. No text, no logo, no watermark."
+
+# When config.toml is not set, add --enable explicitly
+codex exec --enable image_generation -i ./input.png "..."
+```
+
+### 6. Bundled helper script `codex-image-batch.sh`
+
+```bash
+# Diagnostics only (does not generate)
+bash ./codex-image-batch.sh --doctor
+
+# Print prompt and command without generating
+bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+
+# Actually run the sample spec (confirmation prompt appears first)
+bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end
+
+# One job, typed interactively
+bash ./codex-image-batch.sh --manual --pause-at-end
+
+# Overwrite existing outputs rather than skipping them
+bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --overwrite
+
+# When codex is not on PATH, pass the binary explicitly
+CODEX_BIN="$HOME/.nvm/versions/node/<your-version>/bin/codex" \
+  bash ./codex-image-batch.sh --doctor
+```
 
 ## Option cheat sheet
 

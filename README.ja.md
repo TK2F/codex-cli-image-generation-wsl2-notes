@@ -48,20 +48,21 @@
 14. [組み込みプリセット](#組み込みプリセット)
 15. [よく流れてくる話と、今回の検証結果との対比](#よく流れてくる話と今回の検証結果との対比)
 16. [外部に共有する前の自分向けチェック](#外部に共有する前の自分向けチェック)
-17. [オプション早見表](#オプション早見表)
-18. [私の凡ミスも共有します](#私の凡ミスも共有します)
-19. [はじめての方への補足](#はじめての方への補足)
-20. [参照した公式ドキュメント](#参照した公式ドキュメント)
+17. [コマンド早見シート（コピペ用）](#コマンド早見シートコピペ用)
+18. [オプション早見表](#オプション早見表)
+19. [私の凡ミスも共有します](#私の凡ミスも共有します)
+20. [はじめての方への補足](#はじめての方への補足)
+21. [参照した公式ドキュメント](#参照した公式ドキュメント)
 
 ---
 
 ## はじめに（最低限の前提だけ）
 
-この文書は、Codex CLI と WSL2 に最低限の知識がある読者が、私が試した
+この文書は、Codex CLI と WSL2 に最低限の知識がある皆さんが、私が試した
 結果を追試できるよう整えたメモです。初心者向けの導入解説ではないので、
 個々のツールの入門情報は各公式ドキュメントを優先してください（本文の
 末尾近くに「[はじめての方への補足](#はじめての方への補足)」も置いてあり
-ますので、CLI やシェルの操作にまだ慣れていない場合は先にそちらを
+ますので、CLI やシェルの操作にまだ慣れていない皆さんは先にそちらを
 ご覧ください）。
 
 - **Codex CLI** — OpenAI が提供するコマンドラインツール。本文のコマンドは
@@ -218,7 +219,7 @@ $PSVersionTable.PSVersion
 ## 検証スコープと断定していないこと
 
 検証の対象は上の環境に絞っています。そこから外れる領域については、
-この文書では事実として述べず、読者自身の環境で改めてお確かめ
+この文書では事実として述べず、皆さんご自身の環境で改めてお確かめ
 いただけるよう、断定していない点を明示します。
 
 - 実寸 `1024x1024`, `1024x1536`, `1536x1024` の 3 サイズで安定動作を
@@ -247,57 +248,107 @@ $PSVersionTable.PSVersion
 私の環境でそう見えたという範囲の話で、公式の初期値として断定できる
 ものではありません。
 
+### 先に確認する前提条件
+
+画像生成を動かす前に、次の 3 点を先に押さえておくと迷いが減ります。
+私の環境ではこの状態で生成まで通りました。
+
+- **Codex CLI のバージョン** — 古い `codex-cli` では画像生成関連の
+  サブコマンドやツールが未搭載の可能性があります。私が試したのは
+  `codex-cli 0.121.0` でした。`codex --version` で手元を確認して
+  ください。
+- **テキスト側で使うモデルが GPT-5.4 以降であること** — OpenAI の
+  [Image generation tool guide](https://developers.openai.com/api/docs/guides/tools-image-generation)
+  のモデル対応表で、画像生成ツール（built-in `image_gen`）が使える
+  ドライバとして GPT-5 / 5.2 / **5.4** / 5.4-mini / 5.4-nano などが
+  列挙されています。GPT-5.4 より前のモデルでこの workflow が同じ
+  ように動くかは、私の側では検証していません。
+- **Codex のログインが完了していること** — 初回は `codex` を 1 度
+  対話起動して、ブラウザでの認可を済ませておいてください。
+
 > **補足（2026-04-19 時点の裏取り）**: OpenAI の公式 Codex ドキュメント
 > で列挙されている feature 一覧（[Features – Codex CLI](https://developers.openai.com/codex/cli/features)
 > および [Config basics](https://developers.openai.com/codex/config-basic)）
 > には、本文執筆時点で `image_generation` という feature 名は載って
-> いませんでした。一方で OpenAI の画像生成ツールガイド
-> ([Image generation tool guide](https://developers.openai.com/api/docs/guides/tools-image-generation))
+> いませんでした。一方で OpenAI の
+> [Image generation tool guide](https://developers.openai.com/api/docs/guides/tools-image-generation)
 > には、画像生成は Codex の built-in `image_gen` ツールとして既定で
-> 利用できる旨が書かれています。したがって、読者の環境では
-> **`--enable image_generation` フラグを付けずに prompt を送っても、
-> そのまま画像が生成されるかもしれません**。まずはフラグ無しで試し、
-> 必要になったら以下の 2 通りをお試しください。
+> 利用できる旨が書かれています。したがって、皆さんの環境では
+> **`--enable image_generation` フラグも `config.toml` 書き換えも
+> せずに prompt を送るだけで、そのまま画像が生成される可能性もあります**。
+> まずは何も触らずに 1 枚生成を試し、失敗した場合に限り、以下の方法を
+> お試しください。
 >
-> また、私が検証した 2 通り（フラグ / `config.toml`）以外に、
-> [Features – Codex CLI](https://developers.openai.com/codex/cli/features)
+> また、[Features – Codex CLI](https://developers.openai.com/codex/cli/features)
 > には `codex features enable <feature>` / `codex features disable <feature>` /
 > `codex features list` という公式サブコマンドがあると記載されています。
-> feature 名として `image_generation` が受け付けられるかは、お手元で
+> `image_generation` が feature 名として受け付けられるかは、お手元で
 > `codex features list` の出力にその名前が現れるかをご確認ください。
 
-以下は、私の環境で実際に動作を確認できた方法です。どちらでも生成は
-走り、縦長・横長・1:1 のいずれも出力できました。
+以下は、上記の前提を満たした状態で、私の環境で実際に動作を確認できた
+方法です。**優先順位付きで推奨度の高いほうから** 書いています。
 
-**方法 A: `codex exec` の実行時に `--enable image_generation` を付ける**
-
-```bash
-codex exec --enable image_generation -
-```
-
-[Codex CLI reference](https://developers.openai.com/codex/cli/reference) に
-よれば、`--enable` はグローバルフラグで、渡した値は内部的に
-`-c features.<name>=true` と等価に設定されます。私の環境では、このフラグ
-を付けた時に画像生成が通りました。同梱のスクリプト
-`codex-image-batch.sh` も、`codex features list` で feature が無効と
-表示されるときだけ、内部でこのフラグを付けるようにしています。
-
-**方法 B: `~/.codex/config.toml` に設定を書く**
+### 方法 A（私の推奨）: `~/.codex/config.toml` に設定を書く
 
 ```toml
 [features]
 image_generation = true
 ```
 
-この 2 行を書き加えると、私の環境では対話起動の `codex` でも
-`codex exec` でも、フラグなしで画像生成が通りました。毎回フラグを
-書くのが煩わしいときは、こちらが扱いやすく感じました。`config.toml` の
-構造は [Config basics](https://developers.openai.com/codex/config-basic)
-を参照してください。
+こちらを先に紹介する理由は、`config.toml` が
+[Config basics](https://developers.openai.com/codex/config-basic) に
+「個人の既定値を置く場所」として明記された **設定ファイルとして公式に
+位置づけられた経路** だからです。`[features]` セクションに `key = true`
+を足す形は、feature を恒久的に有効化する正規の方法として docs でも
+案内されています。
+
+設定を保存したあとは、**すでに `codex` を対話起動中であれば一度
+終了して再起動してください。** 設定ファイルは起動時に読み込まれるため、
+起動しっぱなしのセッションには反映されないことがあります。`codex exec`
+のように毎回新プロセスで起動する使い方であれば、次回の実行から反映
+されます。
+
+私の環境では、この 2 行を書き加えたあと `codex` 対話モードでも
+`codex exec` でも、追加フラグなしで画像生成が通りました。
+
+### 方法 B: 単発実行のときだけ `--enable image_generation` を付ける
+
+```bash
+codex exec --enable image_generation -
+```
+
+`config.toml` を書き換えたくない場合や、試しに一度だけ有効化したい
+場合はこちらです。[Codex CLI reference](https://developers.openai.com/codex/cli/reference)
+によれば、`--enable` はグローバルフラグで、渡した値は内部的に
+`-c features.<name>=true` と等価に扱われます。同梱のスクリプト
+`codex-image-batch.sh` も、`codex features list` で feature が無効と
+表示されるときだけ、内部でこのフラグを付けるようにしています（
+`config.toml` で有効化済みなら付けません）。
 
 新しい CLI バージョンでは既定値や有効化の手順が変わる可能性があります。
-別のバージョンで試す場合は、まず `codex features list` の表示と、
-上記の公式ドキュメントをご確認いただくのが確実です。
+別のバージョンで試す場合は、まず `codex --version` と `codex features list`
+の表示、そして上記の公式ドキュメントをご確認いただくのが確実です。
+
+### どの経路を選ぶかのフロー図
+
+文章だけでは追いにくいので、判断順序を Mermaid で残しておきます。
+
+```mermaid
+flowchart TD
+  Start[codex --version と<br/>codex features list で現状確認] --> V{codex-cli の<br/>バージョンは?}
+  V -->|古い| Upd[公式 docs に従って<br/>最新版にアップデート]
+  V -->|0.121.0 前後 / 以降| M{テキスト側モデルは<br/>GPT-5.4 以降?}
+  M -->|No| MCheck[Image generation tool guide の<br/>モデル対応表を確認]
+  M -->|Yes| Bare[まず何も足さずに<br/>画像 prompt を送る]
+  Bare -->|画像が出た| Done[完了]
+  Bare -->|拒否 / 画像が出ない| Cfg[方法 A: config.toml に<br/>image_generation = true<br/>→ codex を再起動]
+  Cfg -->|画像が出た| Done
+  Cfg -->|それでも出ない| Flag[方法 B: codex exec に<br/>--enable image_generation を付与]
+  Flag -->|画像が出た| Done
+  Flag -->|出ない| Docs[codex features list と<br/>公式 docs を再確認<br/>必要なら issue 情報を調査]
+  Upd --> V
+  MCheck --> Bare
+```
 
 ## 最小コマンドでの動作確認結果
 
@@ -306,9 +357,12 @@ image_generation = true
 の順に記録します。同じコマンドをお手元で走らせて、結果を見比べて
 いただけると、このメモの意味がはっきりします。
 
-以下では、まだ `image_generation` を有効化していない前提で
-`--enable image_generation` を明示しています。方法 B（`config.toml`）で
-既に有効化している場合は、このフラグは省略できました。
+以下のコマンドは、念のため `--enable image_generation` を明示して
+あります。`~/.codex/config.toml` で `image_generation = true` を
+設定済み（前節の「方法 A」で私が推奨した経路）なら、このフラグは
+省略できました。built-in `image_gen` tool が既定で使える環境では、
+そもそもフラグも `config.toml` も無しで通ることがあります（前節の
+補足を参照）。
 
 **生成:**
 
@@ -634,8 +688,8 @@ Codex の sandbox ドキュメントは、Linux / WSL2 の前提として
 ## 外部に共有する前の自分向けチェック
 
 今回のような実験ノートをほかの人に渡すとき、自分に対して毎回通して
-いるチェックを共有しておきます。読者自身の文脈でも、同じ観点が役立つ
-ことがあるかもしれません。
+いるチェックを共有しておきます。皆さんご自身の文脈でも、同じ観点が
+役立つことがあるかもしれません。
 
 - 個人のホームディレクトリ絶対パスが、prompt / log / summary に残って
   いないか。スクリプトは可能な範囲で相対パスに丸めて書き出すが、
@@ -648,6 +702,118 @@ Codex の sandbox ドキュメントは、Linux / WSL2 の前提として
   `.gitignore` は `examples/outputs/`, `examples/edited-outputs/`,
   `*.log.txt`, 実行サマリ JSON などを除外してあるが、手元の追加出力先
   については都度確認している。
+
+## コマンド早見シート（コピペ用）
+
+私が検証中に繰り返し使ったコマンドを、用途別にまとめました。上から
+順に流せば、**現状確認 → 有効化 → 画像生成 → バッチ** の 4 段階に
+なっています。
+
+### 1. 現状確認（副作用なし）
+
+```bash
+# Codex CLI のバージョン
+codex --version
+
+# 現在の feature 状態（image_generation が含まれていれば true/false を確認）
+codex features list
+
+# 周辺ツールの確認
+node --version
+jq --version
+python3 --version
+bwrap --version   # bubblewrap
+```
+
+### 2. `image_generation` を有効化（方法 A: `config.toml` — 推奨）
+
+```bash
+# ~/.codex ディレクトリが無ければ作る
+mkdir -p ~/.codex
+
+# 既存の config.toml は上書きしないようバックアップ
+[ -f ~/.codex/config.toml ] && cp -n ~/.codex/config.toml ~/.codex/config.toml.bak
+
+# 既に [features] セクションがある環境では、下記を丸ごと追記するのではなく
+# 手動で image_generation = true だけを追記してください。
+cat <<'EOF' >> ~/.codex/config.toml
+
+[features]
+image_generation = true
+EOF
+
+# 反映確認
+cat ~/.codex/config.toml
+```
+
+設定を保存したら、**対話起動中の `codex` はいったん終了して再起動**
+してください。`codex exec` のように毎回新プロセスで呼び出す使い方の
+場合は、次の実行から反映されます。
+
+### 3. `image_generation` を有効化（方法 B: 単発フラグ）
+
+`config.toml` を書き換えたくない場合に使います。
+
+```bash
+# 生成・編集コマンドの先頭に --enable image_generation を付けるだけ
+codex exec --enable image_generation -
+```
+
+### 4. 画像生成（ワンライナー / `printf` パターン）
+
+```bash
+# 最小: 白背景に青い球（英語 prompt）
+printf 'Use the built-in image generation capability only.\nGenerate a square 1:1 image of a blue sphere on a white background.\nNo text, no logo, no watermark.\n' | codex exec -
+
+# 日本語 prompt
+printf 'built-in の画像生成機能だけを使ってください。\n正方形 1:1、1024x1024 で、白背景に青い球体を 1 枚描いてください。\n文字、ロゴ、透かしは入れないでください。\n' | codex exec -
+
+# config.toml 未設定なら --enable を添える
+printf '...' | codex exec --enable image_generation -
+
+# 複数行を素直に書きたい場合は heredoc
+codex exec - <<'EOS'
+Use the built-in image generation capability only.
+Generate a square 1:1 image of a blue sphere on a white background.
+No text, no logo, no watermark.
+EOS
+```
+
+### 5. 画像編集
+
+```bash
+# 1 枚の画像を編集（背景を白に変更）
+codex exec -i ./input.png "Use the built-in image editing capability only. Change the background to white. Keep the subject, composition, and colors intact. No text, no logo, no watermark."
+
+# 2 枚の画像を組み合わせる（prompt で 1 枚目 base / 2 枚目 reference と明示）
+codex exec -i ./base.png -i ./reference.png "Use the first image as the base. Transfer the palette and mood from the second image while preserving the composition and main subject of the first image. No text, no logo, no watermark."
+
+# config.toml 未設定なら --enable を添える
+codex exec --enable image_generation -i ./input.png "..."
+```
+
+### 6. 同梱スクリプト `codex-image-batch.sh`
+
+```bash
+# 依存と Codex 検出の診断のみ（画像生成はしない）
+bash ./codex-image-batch.sh --doctor
+
+# サンプル spec の prompt と command を表示だけ（画像生成はしない）
+bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+
+# サンプル spec を実行（確認プロンプトあり）
+bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end
+
+# 1 ジョブだけ対話で流す
+bash ./codex-image-batch.sh --manual --pause-at-end
+
+# 既存の出力を上書きしたいとき
+bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --overwrite
+
+# codex が PATH にない環境では実体を渡す
+CODEX_BIN="$HOME/.nvm/versions/node/<your-version>/bin/codex" \
+  bash ./codex-image-batch.sh --doctor
+```
 
 ## オプション早見表
 
