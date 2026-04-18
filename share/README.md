@@ -3,6 +3,12 @@
 この `share/` フォルダは、外部共有しやすいように切り出した配布用サブセット
 です。raw log、手元専用の証跡、メンテナンス用メモは含めていません。
 
+## 3行でわかるこのrepo
+
+- Codex CLI でも画像生成と画像編集が通るのかを、WSL2 Ubuntu + Bash 上で実地に検証した記録です。
+- 生成自体は通りましたが、PNG の保存先は期待どおりではなく、`~/.codex/generated_images/<session-id>/` からの回収が必要でした。
+- `share/` には、その検証結果・再現用コマンド・補助スクリプト・公開用に絞った画像例だけを残しています。
+
 私（TK2LAB）が Codex と一緒に「Windows 11 の WSL2 Ubuntu + Bash 上で
 `codex` を叩いて、画像生成と画像編集が本当にそのまま通るのか」を確かめて
 いたところ、実際に出力できたので、自分のための覚書として残したものを、
@@ -41,6 +47,13 @@
    [examples/gallery/README.md](examples/gallery/README.md) を見てください。
 4. まとまった実行や複数参照画像を試すなら `codex-image-batch.sh` と
    `examples/*.json` を参照してください。
+
+## 公開前の最小チェック
+
+- `share/docs/RETEST-2026-04-19.md` の内容が、現時点で共有したい結論と一致しているか
+- `share/examples/gallery/*.png` が metadata strip 済みで、公開したくない情報を含まないか
+- `share/README.md` と `share/QUICKSTART.*` の導線が、今の公開意図と一致しているか
+- まだ実機で生成していない画像や未確認の挙動を、観測済みの事実として書いていないか
 
 ## どこから読むか
 
