@@ -4,25 +4,35 @@ This guide is for the reader who has **never touched Codex or WSL2 before,
 and just wants to get one image out today**. The whole thing is designed
 to fit into about 10–20 minutes.
 
-For the full detail, the verification notes, the debunked assumptions, and
-the runner options, read [README.en.md](README.en.md) afterwards.
+For the full report — environment versions with check commands, the
+observations in detail, a review of common claims against what was seen
+here, and the runner reference — see [README.en.md](README.en.md).
 
-> A small but important note: this repository is a hands-on experiment
-> by TK2LAB and Codex, not a formal benchmark. Everything below worked in
-> the setup we tried. If your environment differs, expect to adjust.
+> This quickstart walks the same steps we ran during the field report:
+> Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`. Everything
+> below is a copy of what we did, not a recommended procedure. If your
+> environment differs, adapt the steps and see
+> [README.en.md](README.en.md#environment-versions-and-how-to-check-them)
+> for the commands that read your own versions.
 
 ---
 
 ## 0. What this guide assumes
 
-- **OS**: Windows 11 (Windows 10 also works if WSL2 is available).
+- **OS**: Windows 11 was used in this write-up. Windows 10 with WSL2
+  available is likely to behave similarly, but that combination was
+  not tested here.
 - **Account**: An OpenAI / ChatGPT account that is allowed to use Codex.
   A browser-based authorization is part of the first login.
-- **Network**: You need internet during install and the first login.
+- **Network**: Internet access is needed during install and the first
+  login.
 - **Disk**: A few gigabytes free for Ubuntu and Node.
 - **Where to type**: Every command below goes into the **WSL Ubuntu
   Bash shell**, not Windows PowerShell. Copy the block and press Enter;
   no leading `$` is shown.
+- **Version check**: The exact versions used in the field report, and
+  the commands that print yours, are in
+  [README.en.md](README.en.md#environment-versions-and-how-to-check-them).
 
 ## 1. Install WSL2 + Ubuntu
 
@@ -51,9 +61,9 @@ sudo apt update
 sudo apt install -y curl git jq python3 bubblewrap
 ```
 
-`bubblewrap` is the recommended prerequisite for Codex's sandbox on Linux
-and WSL2 (official docs:
-https://developers.openai.com/codex/concepts/sandboxing#prerequisites ).
+`bubblewrap` is listed as the prerequisite for Codex's sandbox on Linux
+and WSL2 in the official documentation
+(https://developers.openai.com/codex/concepts/sandboxing#prerequisites).
 
 Install Node.js via nvm, which keeps versions simple.
 
@@ -79,18 +89,21 @@ codex --version
 codex features list
 ```
 
-`codex --version` should print `codex-cli` and a version number.
-`codex features list` should include `image_generation`. That is the
-baseline you want before moving on.
+In this run, `codex --version` printed `codex-cli 0.121.0`, and
+`codex features list` included `image_generation` as an enabled feature.
+That was the baseline used before moving on. If your output differs,
+consult the Codex CLI docs linked above before continuing.
 
 The very first `codex` invocation may open a browser window for OpenAI
 account authorization. Complete the flow in Windows, come back to the
 Ubuntu terminal, and it continues.
 
-If `image_generation` shows as disabled, the cleanest paths are:
+If `image_generation` shows as disabled, two paths were observed during
+this write-up. Either may work for you; try the one that fits your
+setup:
 
-- Run `codex` once interactively and ask for a simple image; the feature
-  often becomes active after that.
+- Run `codex` once interactively and ask for a simple image. In this
+  run, the feature activated after that first invocation.
 - Or add it to `~/.codex/config.toml` by hand:
 
   ```toml
@@ -188,9 +201,9 @@ bash ./codex-image-batch.sh --manual --pause-at-end
 
 ## 8. Next steps
 
-- For the full picture — scope, JSON spec shape, aspect ratio reality,
-  presets, debunked claims, and references — see
-  [README.en.md](README.en.md).
+- For the full picture — scope, JSON spec shape, observed aspect-ratio
+  behavior, presets, a review of common claims against the observations
+  here, and references — see [README.en.md](README.en.md).
 - Copy one of the files in `examples/` and edit the prompts to match
   what you actually want to produce.
 - Before sharing any output, remove absolute personal paths and any

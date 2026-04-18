@@ -15,8 +15,8 @@ Initial private-publication release. Verified by TK2LAB and Codex on
 - `examples/input/README.md` — placeholder folder for edit inputs
 - `README.md` — bilingual landing with status and entry points
 - `README.ja.md` / `README.en.md` — single comprehensive doc per
-  language with hands-on notes, fact check, debunked assumptions, and
-  official references
+  language with hands-on notes, a review of common claims against what
+  was observed here, and official references
 - `QUICKSTART.ja.md` / `QUICKSTART.en.md` — first-time setup covering
   WSL2 install, account login, Codex CLI install, direct commands, and
   the runner

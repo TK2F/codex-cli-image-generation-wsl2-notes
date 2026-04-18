@@ -9,17 +9,23 @@ It is written to stay fact-based, avoid exaggeration, and separate what
 was actually observed from what was inferred. Official documentation is
 linked for every non-trivial claim.
 
-> This repository is a **small, hands-on experiment** by TK2LAB and
-> Codex. It is not a formal benchmark or an exhaustive survey. Everything
-> described here is limited to what actually ran and what was observed.
-> Anything outside that envelope is intentionally not asserted, and
-> behavior may differ on other environments or as the CLI evolves.
+> This repository is a first-person field report by TK2LAB and Codex,
+> recorded against a concrete stack: Windows 11 + WSL2 + Ubuntu + Bash +
+> `codex-cli 0.121.0`. It is not a recommendation of that exact stack or
+> of the steps used. Everything stated is what happened in this run and
+> what the official docs say. Please run the same commands on your
+> environment and compare — that is where the report becomes useful.
 
-Validated by: TK2LAB and Codex
-Validated on: 2026-04-19
-CLI: `codex-cli 0.121.0`
-Shell: Bash inside WSL2 Ubuntu
-Out of scope: native Windows PowerShell execution
+**Validators:** TK2LAB and Codex
+**Validated on:** 2026-04-19
+**Host OS:** Windows 11
+**Runtime:** Ubuntu on WSL2
+**Shell:** Bash (native Windows PowerShell execution is out of scope)
+**Codex CLI:** `codex-cli 0.121.0`
+
+For the other packages, runtimes, and libraries, see the
+[Environment versions and how to check them](#environment-versions-and-how-to-check-them)
+section below.
 
 ---
 
@@ -27,20 +33,21 @@ Out of scope: native Windows PowerShell execution
 
 1. [Prerequisites — just the minimum](#prerequisites--just-the-minimum)
 2. [30-second summary](#30-second-summary)
-3. [Test scope and sample framing](#test-scope-and-sample-framing)
-4. [Smallest "does it really work" proof](#smallest-does-it-really-work-proof)
-5. [Why the commands use `printf`](#why-the-commands-use-printf)
-6. [Japanese and English prompts](#japanese-and-english-prompts)
-7. [Aspect ratios in practice](#aspect-ratios-in-practice)
-8. [From one image to many — where the runner helps](#from-one-image-to-many--where-the-runner-helps)
-9. [doctor → preview → run](#doctor--preview--run)
-10. [JSON spec shape](#json-spec-shape)
-11. [Built-in presets](#built-in-presets)
-12. [Fact check and debunk](#fact-check-and-debunk)
-13. [Before you share the output](#before-you-share-the-output)
-14. [Option cheat sheet](#option-cheat-sheet)
-15. [Common pitfalls](#common-pitfalls)
-16. [Official references used](#official-references-used)
+3. [Environment versions and how to check them](#environment-versions-and-how-to-check-them)
+4. [Scope and what is not asserted](#scope-and-what-is-not-asserted)
+5. [Smallest "does it really work" proof](#smallest-does-it-really-work-proof)
+6. [Why the commands use `printf`](#why-the-commands-use-printf)
+7. [Japanese and English prompts](#japanese-and-english-prompts)
+8. [Aspect ratios in practice](#aspect-ratios-in-practice)
+9. [From one image to many — where the runner helps](#from-one-image-to-many--where-the-runner-helps)
+10. [doctor → preview → run](#doctor--preview--run)
+11. [JSON spec shape](#json-spec-shape)
+12. [Built-in presets](#built-in-presets)
+13. [Common claims vs. what was observed here](#common-claims-vs-what-was-observed-here)
+14. [Before you share the output](#before-you-share-the-output)
+15. [Option cheat sheet](#option-cheat-sheet)
+16. [Common pitfalls](#common-pitfalls)
+17. [Official references used](#official-references-used)
 
 ---
 
@@ -84,39 +91,95 @@ From here on, the document is the actual record.
   images use two `-i` flags.
 - Japanese and English prompts both worked, for both generation and
   editing.
-- The practical output sizes are three buckets: **`1024x1024`**,
-  **`1024x1536`**, **`1536x1024`**. Arbitrary ratios are requests, not
-  guarantees.
+- Output sizes observed here fell into three concrete values:
+  **`1024x1024`**, **`1024x1536`**, **`1536x1024`**. Arbitrary ratios
+  are requests to the model, not guarantees.
 - The batch runner starts to pay off once the workflow moves from one
   image to several.
 - The Codex CLI docs explicitly state the CLI supports image generation
   and editing ([reference](#official-references-used)).
 
-## Test scope and sample framing
+## Environment versions and how to check them
 
-- Platform: Windows 11 + WSL2 + Ubuntu + Bash.
-- CLI: `codex-cli 0.121.0`.
-- Text-side model flow observed as GPT-5.4-class. I did not directly
-  observe which internal image-model alias the CLI selected per request.
+To keep "your mileage may vary" from being an easy excuse, here are the
+versions observed during this run and the exact commands that produce
+them. Values marked `—` were not captured during this report and can be
+filled in by running the listed command on your machine.
+
+| Item | This run | How to check |
+| --- | --- | --- |
+| Windows | Windows 11 | PowerShell: `winver`, or `Get-ComputerInfo \| Select-Object WindowsProductName, WindowsVersion, OsBuildNumber` |
+| PowerShell | — | PowerShell: `$PSVersionTable.PSVersion` |
+| WSL | WSL2 | PowerShell: `wsl --version`, or `wsl --status` |
+| Ubuntu distribution | Ubuntu (LTS) | Bash: `cat /etc/os-release`, or `lsb_release -a` |
+| Kernel | — | Bash: `uname -r` |
+| Bash | — | Bash: `bash --version` |
+| Codex CLI | `codex-cli 0.121.0` | Bash: `codex --version` |
+| Codex feature state | `image_generation` enabled | Bash: `codex features list` |
+| Node.js | — (LTS via nvm) | Bash: `node --version` |
+| npm | — | Bash: `npm --version` |
+| nvm | — | Bash: `nvm --version` |
+| jq | — | Bash: `jq --version` |
+| python3 | — | Bash: `python3 --version` |
+| bubblewrap | — | Bash: `bwrap --version` |
+
+To collect the WSL-side values in one pass, this snippet is convenient:
+
+```bash
+{
+  printf '# Environment snapshot (%s)\n' "$(date -Iseconds)"
+  echo "## From PowerShell, run separately:"
+  echo "  winver ; Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsBuildNumber ; \$PSVersionTable.PSVersion ; wsl --version"
+  echo
+  echo "## WSL / Bash"
+  printf 'uname -a: %s\n' "$(uname -a)"
+  printf 'bash: %s\n' "$BASH_VERSION"
+  cat /etc/os-release 2>/dev/null | grep -E '^(NAME|VERSION)='
+  printf 'codex: %s\n' "$(codex --version 2>/dev/null || echo 'not found')"
+  printf 'node: %s\n' "$(node --version 2>/dev/null || echo 'not found')"
+  printf 'npm: %s\n' "$(npm --version 2>/dev/null || echo 'not found')"
+  printf 'jq: %s\n' "$(jq --version 2>/dev/null || echo 'not found')"
+  printf 'python3: %s\n' "$(python3 --version 2>/dev/null || echo 'not found')"
+  printf 'bwrap: %s\n' "$(bwrap --version 2>/dev/null || echo 'not found')"
+}
+```
+
+PowerShell and Windows build numbers cannot be read from WSL directly,
+so run these on the Windows side:
+
+```powershell
+Get-ComputerInfo | Select-Object WindowsProductName, WindowsVersion, OsBuildNumber
+$PSVersionTable.PSVersion
+```
+
+## Scope and what is not asserted
+
+The observations cover only the environment listed above. For anything
+outside that envelope, this report stays silent rather than generalizing.
+
 - Stable operation confirmed at `1024x1024`, `1024x1536`, and
   `1536x1024`.
 - `codex exec` accepted prompts via stdin and as argument strings, for
   both generation and edit flows.
-- Output files were observed both in the working directory and under
+- Output files appeared both in the current directory and under
   `~/.codex/generated_images`.
+- The text-side model flow was observed as GPT-5.4-class. Which
+  image-model alias the CLI selected per call was not directly
+  observable from the CLI surface in this run.
 - No private identifiers (character names, machine names, home paths,
-  personal email, API keys, etc.) are carried into this repository.
+  personal email, API keys, pinned Node version strings) are carried
+  into this repository.
 
-Not claimed:
+Not asserted:
 
-- Which image-model alias the CLI used on any given call.
+- The specific image-model alias used on any given call.
 - Behavior on pre-GPT-5.4 model generations.
-- That arbitrary size values (e.g., `1408x768`) are honored literally.
+- That arbitrary sizes such as `1408x768` are honored literally.
 - Equivalent behavior on native Windows PowerShell.
 
 ## Smallest "does it really work" proof
 
-Three minimal examples, in the order people usually need them.
+Three minimal examples, in the order we tried them during this run.
 
 **Generate one image:**
 
@@ -143,7 +206,10 @@ codex --version
 codex features list
 ```
 
-You want `image_generation` to appear as enabled in the features list.
+In this run, `codex features list` reported `image_generation` as
+enabled before any of the steps that follow. If that is not the case on
+your machine, the Codex CLI docs linked at the bottom describe how to
+bring the feature into that state.
 
 ## Why the commands use `printf`
 
@@ -203,18 +269,20 @@ Japanese edit example:
 codex exec -i ./input.png "built-in の画像編集機能だけを使ってください。背景だけを白に変更し、被写体、構図、色味は維持してください。文字、ロゴ、透かしは加えないでください。"
 ```
 
-Two practical conventions that survived testing:
+Two small conventions that seemed to stabilize output in this run.
+They are not required, and readers may want to confirm in their own
+prompts.
 
-- State "use the built-in image generation capability only" (or editing,
-  as appropriate). This nudges the CLI away from SVG or HTML substitute
-  outputs.
-- End with "no text, no logo, no watermark" unless you explicitly want
-  any of those. Making this a template closing line avoids repetitive
-  follow-up edits.
+- Stating "use the built-in image generation capability only" (or
+  editing, as appropriate) up front. Without it, some runs drifted
+  toward SVG or HTML substitutes.
+- Closing with "no text, no logo, no watermark" by default. When that
+  closing line was present, post-processing edits were rarer in this
+  run.
 
 ## Aspect ratios in practice
 
-Three sizes deserve to be treated as first-class:
+In this run, three output sizes appeared consistently:
 
 - `1024x1024` — square
 - `1024x1536` — portrait
@@ -360,9 +428,12 @@ Aspect presets are covered above. Style presets are intentionally small:
 
 Use `--list-presets` for the authoritative current list.
 
-## Fact check and debunk
+## Common claims vs. what was observed here
 
-A few claims that are easy to repeat but do not hold up as-is.
+Several claims about Codex CLI image generation circulate online. Below
+is how each one held up during this specific run, together with the
+relevant official documentation. These are observations from one
+environment, and other runs may produce different results.
 
 **"Image generation only works in the Codex desktop app."**
 
@@ -387,8 +458,8 @@ support.
 
 **"Arbitrary requested sizes come back literally."**
 
-That is not what the observations showed. The practical sizes are
-`1024x1024`, `1024x1536`, and `1536x1024`.
+That is not what the observations showed in this run. The output sizes
+seen here were `1024x1024`, `1024x1536`, and `1536x1024`.
 
 **"The WSL setup does not matter."**
 
@@ -404,17 +475,21 @@ scoped to `codex-cli 0.121.0` and the GPT-5.4 era.
 
 ## Before you share the output
 
-When forwarding any local experimental output, this checklist helps:
+Sharing experimental output cleanly was part of this project. The
+checklist below is the one this report was run through before the
+repository was pushed; it may also be useful for other work that
+touches prompts, logs, or generated images.
 
-- No absolute personal home paths should remain in prompts, logs, or
-  summary files. The runner prefers relative paths where possible.
-- No internal product or character names in sample prompts. Generic
-  subjects (glass bottle, blue sphere, studio product shot) travel well.
-- No host names, Windows user names, personal emails, API keys, tokens,
-  or pinned Node version strings should remain in environment notes.
-- No output images that were not intended for the recipient. The
-  `.gitignore` excludes `examples/outputs/`, `examples/edited-outputs/`,
-  and `*.log.txt`.
+- Absolute personal home paths, removed from prompts, logs, and
+  summary files. The runner writes relative paths where possible; input
+  image names and prompt text were corrected by hand.
+- Internal product or character names, replaced with generic subjects
+  in sample prompts (glass bottle, blue sphere, studio product shot).
+- Host names, Windows user names, personal emails, API keys, tokens,
+  and pinned Node version strings, scrubbed from environment notes.
+- Output images not intended for the audience, excluded. The
+  `.gitignore` already excludes `examples/outputs/`,
+  `examples/edited-outputs/`, `*.log.txt`, and `codex-image-batch-run-*.json`.
 
 ## Option cheat sheet
 
