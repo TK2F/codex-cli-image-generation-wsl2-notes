@@ -1,3 +1,33 @@
+# Runner outputs
 examples/outputs/
 examples/edited-outputs/
+outputs/
+edited-outputs/
+
+# Per-job raw logs and run summaries
 *.log.txt
+codex-image-batch-run-*.json
+
+# Editor / OS / dependency noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*.swo
+*.bak
+*.orig
+
+node_modules/
+__pycache__/
+*.pyc
+
+# Local env / secrets — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+auth.json
+.codex-session
+.codex/
