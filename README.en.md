@@ -83,9 +83,11 @@ own installation procedures far better than a short restatement here.
 - **Assumed state** — `codex` is already installed inside the WSL2
   Ubuntu environment, and the one-time login and sandbox setup have
   been completed.
-- **Side-effect ordering** — commands are arranged left-to-right by
-  increasing side effect. `--doctor` and `--preview` neither call
-  Codex nor generate images.
+- **Side effects** — commands in this document are ordered from lowest
+  side effect to highest. `--doctor` runs `codex --version` and
+  `codex features list` for diagnostics but does not generate images.
+  `--preview` only prints the final prompt and the command that would
+  run; it does not generate images either. Both are read-only checks.
 
 From here on, the document records commands that were actually run and
 what was observed when they were run. Comparing your own run against
@@ -147,17 +149,17 @@ flowchart LR
 ```mermaid
 flowchart TD
   Start[Script start] --> Pre{Mode}
-  Pre -->|--doctor| Doc[Report deps / PATH / feature<br/>does not call Codex]
-  Pre -->|--preview| Pv[Print prompts and commands<br/>does not call Codex]
+  Pre -->|--doctor| Doc[Run codex --version and<br/>codex features list<br/>does not generate images]
+  Pre -->|--preview| Pv[Print prompts and commands<br/>does not generate images]
   Pre -->|--manual| Man[Prompt for one job interactively]
   Pre -->|--spec JSON| Spec[Build jobs array from JSON]
   Spec --> Loop[Iterate jobs in order]
   Man --> Loop
   Loop --> Exec[codex exec --enable image_generation]
   Exec --> Ok{Success?}
-  Ok -->|yes| Out[Emit PNG and relative path]
-  Ok -->|no, retries left| Retry[Wait --retry-delay seconds] --> Exec
-  Ok -->|no retries left| Fail[Record job as failed in summary]
+  Ok -->|success| Out[Emit PNG and relative path]
+  Ok -->|failure retries left| Retry[Wait --retry-delay seconds] --> Exec
+  Ok -->|failure retries exhausted| Fail[Record job as failed in summary]
   Out --> Sum[Per-job raw log<br/>and run summary JSON]
   Fail --> Sum
 ```

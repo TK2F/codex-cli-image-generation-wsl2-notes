@@ -77,9 +77,11 @@
   せん。そのままコピーしてターミナルに貼り付けられる形に揃えています。
 - **前提状態** — `codex` が WSL2 Ubuntu にインストールされており、初回の
   ログインと sandbox 設定が済んでいる状態を起点にしています。
-- **副作用の大きさ** — 本文のコマンドは、左上ほど副作用が小さいものから
-  並べています。`--doctor` と `--preview` は Codex 本体を呼ばず画像も
-  生成しません。
+- **副作用の大きさ** — 本文のコマンドは、副作用が小さいものから順に
+  並べています。`--doctor` は診断のために `codex --version` と
+  `codex features list` を呼びますが、画像生成は行いません。
+  `--preview` も、最終 prompt と実行予定のコマンドを表示するだけで
+  画像は生成しません。どちらも読取り専用の確認用途です。
 
 以降の記述は、この前提の上で私が実際に実行したコマンドと、その結果を
 並べた記録です。同じ結果が出るかどうかを、お手元でご確認いただけると、
@@ -140,17 +142,17 @@ flowchart LR
 ```mermaid
 flowchart TD
   Start[スクリプト起動] --> Pre{モード指定}
-  Pre -->|--doctor| Doc[依存 / PATH / feature を表示<br/>Codex は呼ばない]
-  Pre -->|--preview| Pv[prompt と command を表示<br/>Codex は呼ばない]
+  Pre -->|--doctor| Doc[codex --version と<br/>codex features list を表示<br/>画像生成はしない]
+  Pre -->|--preview| Pv[prompt と command を表示<br/>codex exec での生成はしない]
   Pre -->|--manual| Man[1 ジョブを対話入力]
   Pre -->|--spec JSON| Spec[JSON から jobs 配列を構築]
   Spec --> Loop[各 job を順番に処理]
   Man --> Loop
   Loop --> Exec[codex exec --enable image_generation]
   Exec --> Ok{成功?}
-  Ok -->|yes| Out[出力 PNG + 相対パスで表示]
-  Ok -->|no & retry 残| Retry[--retry-delay 秒待機] --> Exec
-  Ok -->|no retry 使い切り| Fail[summary に failed 記録]
+  Ok -->|成功| Out[出力 PNG + 相対パスで表示]
+  Ok -->|失敗 retry 残あり| Retry[--retry-delay 秒待機] --> Exec
+  Ok -->|失敗 retry 使い切り| Fail[summary に failed 記録]
   Out --> Sum[ジョブ単位の raw log と<br/>実行サマリ JSON を保存]
   Fail --> Sum
 ```
