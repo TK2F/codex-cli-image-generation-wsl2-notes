@@ -30,6 +30,18 @@
 **環境:** Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`
 **検証者:** TK2LAB, Codex（CLI 側）
 
+## 最短で把握したい方向け
+
+1. まず [QUICKSTART.ja.md](QUICKSTART.ja.md) /
+   [QUICKSTART.en.md](QUICKSTART.en.md) を見て、最小コマンドと保存先の実態を
+   把握してください。
+2. 次に [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) を見て、
+   後追い検証で何が覆り、何が維持されたかを確認してください。
+3. 実際の出力の雰囲気は
+   [examples/gallery/README.md](examples/gallery/README.md) を見てください。
+4. まとまった実行や複数参照画像を試すなら `codex-image-batch.sh` と
+   `examples/*.json` を参照してください。
+
 ## どこから読むか
 
 | 目的 | 開く |
@@ -77,6 +89,18 @@ thing.
 **Environment:** Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`
 **Observers:** TK2LAB and Codex (on the CLI side)
 
+## Fast path
+
+1. Start with [QUICKSTART.en.md](QUICKSTART.en.md) /
+   [QUICKSTART.ja.md](QUICKSTART.ja.md) for the minimum commands and the real
+   storage behavior.
+2. Then read [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) to see
+   what the follow-up re-test confirmed or corrected.
+3. For concrete outputs, open
+   [examples/gallery/README.md](examples/gallery/README.md).
+4. If you want batch runs or multi-reference inputs, then move on to
+   `codex-image-batch.sh` and the sample JSON files.
+
 **2026-04-19 re-test note:** A later follow-up run in the same repo
 confirmed that image generation and editing still worked, but the PNGs
 were stored under `~/.codex/generated_images/<session-id>/` rather than
@@ -104,3 +128,19 @@ and QUICKSTART files for the updated recovery steps.
   with prompt notes
 - `docs/RETEST-2026-04-19.md` — sanitized public summary of the
   2026-04-19 re-test
+
+## Current observed examples
+
+These are real outputs already included in this shared subset:
+
+| Example | Preview |
+| --- | --- |
+| Blue sphere generation | ![Blue sphere example](examples/gallery/blue-sphere-with-enable.png) |
+| Black-and-white edit | ![Black and white edit example](examples/gallery/edit-black-and-white.png) |
+
+For prompts and notes, open
+[examples/gallery/README.md](examples/gallery/README.md).
+
+Planned top-page landscape hero images are specified in
+[docs/FEATURED-HERO-IMAGES.md](docs/FEATURED-HERO-IMAGES.md), but they are not
+committed yet because this snapshot does not include a fresh re-test for them.

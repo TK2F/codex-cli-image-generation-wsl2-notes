@@ -11,6 +11,10 @@ observed results side by side.
 The full raw evidence bundle remains local/private. Only the image files and the
 minimum metadata needed for comparison are included here.
 
+The PNG files currently committed in this folder were metadata-stripped before
+publication. Provenance/C2PA blocks from the original raw outputs are not
+included in this shared subset.
+
 ## Images
 
 | File | Source test | Prompt summary | Notes |
@@ -53,3 +57,5 @@ Use the built-in image generation capability only. Generate a square 1:1 image o
   output path may be wrong and that internal-storage recovery may be required.
 - Multi-image and character-reference examples are described in the sample JSON
   files, but those larger reference assets are not bundled into this gallery.
+- Planned top-page hero images are defined separately in
+  [../../docs/FEATURED-HERO-IMAGES.md](../../docs/FEATURED-HERO-IMAGES.md).

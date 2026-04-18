@@ -19,10 +19,17 @@ jobs:
       - name: ShellCheck
         run: shellcheck -S warning codex-image-batch.sh
 
+      - name: Validate share helper
+        run: |
+          bash -n share/codex-image-batch.sh
+          shellcheck -S warning share/codex-image-batch.sh
+
       - name: Validate sample JSON
         run: |
           jq empty examples/codex-image-batch.sample.json
           jq empty examples/codex-image-edit-batch.sample.json
+          jq empty share/examples/codex-image-batch.sample.json
+          jq empty share/examples/codex-image-edit-batch.sample.json
 
       - name: Verify key docs exist
         run: |
@@ -38,3 +45,21 @@ jobs:
           test -f examples/gallery/blue-sphere-with-enable.png
           test -f examples/gallery/edit-black-and-white.png
           test -f examples/gallery/blue-sphere-full-auto.png
+          test -f share/README.md
+          test -f share/README.ja.md
+          test -f share/README.en.md
+          test -f share/QUICKSTART.ja.md
+          test -f share/QUICKSTART.en.md
+          test -f share/CHANGELOG.md
+          test -f share/docs/RETEST-2026-04-19.md
+          test -f share/docs/FEATURED-HERO-IMAGES.md
+          test -f share/examples/gallery/README.md
+          test -f share/examples/gallery/blue-sphere-no-enable.png
+          test -f share/examples/gallery/blue-sphere-with-enable.png
+          test -f share/examples/gallery/edit-black-and-white.png
+          test -f share/examples/gallery/blue-sphere-full-auto.png
+
+      - name: Check shared gallery metadata was stripped
+        run: |
+          ! strings examples/gallery/*.png | grep -E 'c2pa|OpenAI Media Service|Trufo|claim_generator_info|jumb'
+          ! strings share/examples/gallery/*.png | grep -E 'c2pa|OpenAI Media Service|Trufo|claim_generator_info|jumb'

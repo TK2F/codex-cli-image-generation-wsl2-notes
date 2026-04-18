@@ -98,3 +98,15 @@ and QUICKSTART files for the updated recovery steps.
   with prompt notes
 - `docs/RETEST-2026-04-19.md` — sanitized public summary of the
   2026-04-19 re-test
+
+## Observed Reference Images
+
+These are currently committed, re-tested example outputs with prompt notes:
+
+| Example | Preview |
+| --- | --- |
+| Blue sphere generation | ![Blue sphere example](examples/gallery/blue-sphere-with-enable.png) |
+| Black-and-white edit | ![Black and white edit example](examples/gallery/edit-black-and-white.png) |
+
+For the full prompt list and notes, see
+[examples/gallery/README.md](examples/gallery/README.md).
