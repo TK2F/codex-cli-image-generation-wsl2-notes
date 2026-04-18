@@ -249,10 +249,34 @@ Not asserted:
 ## `image_generation` looked disabled by default — two ways I got it working
 
 On a fresh install in my environment, `codex features list` showed
-`image_generation` as disabled (`false`). This was what I saw on my
-machine rather than a claim about the canonical default. Two methods
-let me run image generation end-to-end. Both produced output, and
-portrait, landscape, and 1:1 sizes all came through.
+`image_generation` as disabled (`false`). This is what I saw on my
+machine rather than a claim about the canonical default.
+
+> **Cross-check (2026-04-19)**: The OpenAI Codex docs
+> ([Features – Codex CLI](https://developers.openai.com/codex/cli/features)
+> and [Config basics](https://developers.openai.com/codex/config-basic))
+> do not list `image_generation` in their public feature tables at the
+> time of writing. OpenAI's
+> [image generation tool guide](https://developers.openai.com/api/docs/guides/tools-image-generation)
+> notes that image generation is exposed as a built-in `image_gen` tool
+> that Codex can use by default. In other words,
+> **on some installations, simply prompting Codex without any flag may
+> be enough to trigger image generation.** I recommend trying without
+> a flag first, and only falling back to the two methods below if the
+> call is refused.
+>
+> Separately,
+> [Features – Codex CLI](https://developers.openai.com/codex/cli/features)
+> does document `codex features enable <feature>` /
+> `codex features disable <feature>` / `codex features list` as
+> persistent management subcommands. I did not verify
+> `codex features enable image_generation` myself. If you try it, also
+> confirm whether `image_generation` appears in your own
+> `codex features list` output first.
+
+Here are the two methods I confirmed working in my environment. Both
+produced output, and portrait, landscape, and 1:1 sizes all came
+through.
 
 **Method A: pass `--enable image_generation` on each `codex exec` call**
 
@@ -260,10 +284,12 @@ portrait, landscape, and 1:1 sizes all came through.
 codex exec --enable image_generation -
 ```
 
-Adding the flag was enough to run image generation in my run. The
-bundled `codex-image-batch.sh` follows the same approach: when the
-feature is not already enabled, the script adds `--enable
-image_generation` to each call.
+Per the
+[Codex CLI reference](https://developers.openai.com/codex/cli/reference),
+`--enable` is a global flag that is internally equivalent to
+`-c features.<name>=true`. Adding it was enough to run image generation
+in my run. The bundled `codex-image-batch.sh` only adds this flag when
+`codex features list` reports the feature as disabled.
 
 **Method B: set it in `~/.codex/config.toml`**
 
@@ -273,12 +299,14 @@ image_generation = true
 ```
 
 With those two lines in place, interactive `codex` and `codex exec`
-both produced images in my environment without the flag. For
-continuous use, the config-file path felt less fiddly.
+both produced images in my environment without the flag. For continued
+use the config-file path felt less fiddly. See
+[Config basics](https://developers.openai.com/codex/config-basic) for
+the full config file structure.
 
-New CLI versions may change defaults or the enablement path, so when
+New CLI versions may change defaults or the enablement path. When
 installing a fresh version it is worth checking `codex features list`
-first and deferring to the official Codex CLI documentation.
+and the official docs linked above before proceeding.
 
 ## The smallest commands that worked in this run
 
@@ -303,11 +331,21 @@ printf 'Use the built-in image generation capability only.\nGenerate a square 1:
 codex exec --enable image_generation -i ./input.png "Use the built-in image editing capability only. Change the background to white. Keep the subject, composition, and colors intact. No text, no logo, no watermark."
 ```
 
-**Edit using one image as base and another as reference:**
+**Edit using one image as base and another as reference (treating the first as base and the second as reference):**
 
 ```bash
 codex exec --enable image_generation -i ./base.png -i ./reference.png "Use the first image as the base. Transfer the palette and mood from the second image while preserving the composition and main subject of the first image. No text, no logo, no watermark."
 ```
+
+> Note: The
+> [Codex CLI reference](https://developers.openai.com/codex/cli/reference)
+> documents `-i` / `--image` simply as "Attach images to the first
+> message. Repeatable; supports comma-separated lists." **The ordering
+> semantics — which image is treated as base vs. reference — are not
+> defined at the CLI level.** The command above only behaves that way
+> because the prompt explicitly says "Use the first image as the base.
+> … palette and mood from the second image …". The mapping is driven
+> by the prompt, not by the CLI flag order.
 
 Two short sanity checks I ran before the first real call:
 
@@ -634,7 +672,9 @@ touches prompts, logs, or generated images.
 - `--inter-job-delay N` — seconds to wait between jobs (default: 2)
 - `--generated-image-wait N` — seconds to wait for the
   `~/.codex/generated_images` fallback (default: 5)
-- `--retry-count N` — retry count for failed jobs (default: 1)
+- `--retry-count N` — number of *additional* retry attempts for failed
+  jobs (default: `1`, meaning the original attempt plus one retry =
+  up to two tries per job)
 - `--retry-delay N` — seconds between retries (default: 3)
 - `-h`, `--help` — show help
 
@@ -657,7 +697,28 @@ one" list can shorten the path.
   existing outputs were skipped unless `--overwrite` was passed.
 - Assuming Windows-style paths would fail. In practice, common
   `C:\...` and `\\wsl.localhost\...` forms were normalized by the
-  helper script during this test.
+  helper script during this test. Other UNC forms such as
+  `\\server\share\...` are not normalized.
+
+Three script-side notes are not really "my mistakes," but they sit in
+the same neighborhood — sharing them here so that a reader working
+through the same path has fewer surprises:
+
+- **How to escape a hang.** The helper script does not set a timeout
+  on `codex exec`. If a job hangs (for example, due to a stalled
+  network connection), the whole batch waits. Use `Ctrl-C` to break
+  out, then isolate the spec that caused the hang.
+- **Do not run concurrent instances against the same output
+  directory.** The fallback recovery pulls newly-created files from
+  `~/.codex/generated_images`, and running multiple helper-script or
+  `codex` processes in parallel can lead to a job picking up another
+  process's image. Running jobs serially avoided that entirely on
+  my side.
+- **`raw log` files contain Codex's full stdout and stderr.** On
+  errors the log can include file paths or API error fragments. The
+  `.gitignore` already excludes `*.log.txt`, so commits are safe by
+  default, but it is worth eyeballing a log before sharing it with
+  someone else.
 
 ## A note for readers new to the tooling
 

@@ -243,10 +243,31 @@ $PSVersionTable.PSVersion
 ## `image_generation` は既定で無効だったので、私が試した 2 通り
 
 インストール直後の私の環境では、`codex features list` の出力で
-`image_generation` が無効側（`false`）に表示されました。これは私が
-見えた状態であり、公式の初期値として断定しているわけではありません。
-画像生成を通すため、実際に動作を確認できた方法は次の 2 通りでした。
-どちらでも生成は走り、縦長・横長・1:1 のいずれも出力できました。
+`image_generation` が無効側（`false`）に表示されていました。これは
+私の環境でそう見えたという範囲の話で、公式の初期値として断定できる
+ものではありません。
+
+> **補足（2026-04-19 時点の裏取り）**: OpenAI の公式 Codex ドキュメント
+> で列挙されている feature 一覧（[Features – Codex CLI](https://developers.openai.com/codex/cli/features)
+> および [Config basics](https://developers.openai.com/codex/config-basic)）
+> には、本文執筆時点で `image_generation` という feature 名は載って
+> いませんでした。一方で OpenAI の画像生成ツールガイド
+> ([Image generation tool guide](https://developers.openai.com/api/docs/guides/tools-image-generation))
+> には、画像生成は Codex の built-in `image_gen` ツールとして既定で
+> 利用できる旨が書かれています。したがって、読者の環境では
+> **`--enable image_generation` フラグを付けずに prompt を送っても、
+> そのまま画像が生成されるかもしれません**。まずはフラグ無しで試し、
+> 必要になったら以下の 2 通りをお試しください。
+>
+> また、私が検証した 2 通り（フラグ / `config.toml`）以外に、
+> [Features – Codex CLI](https://developers.openai.com/codex/cli/features)
+> には `codex features enable <feature>` / `codex features disable <feature>` /
+> `codex features list` という公式サブコマンドがあると記載されています。
+> feature 名として `image_generation` が受け付けられるかは、お手元で
+> `codex features list` の出力にその名前が現れるかをご確認ください。
+
+以下は、私の環境で実際に動作を確認できた方法です。どちらでも生成は
+走り、縦長・横長・1:1 のいずれも出力できました。
 
 **方法 A: `codex exec` の実行時に `--enable image_generation` を付ける**
 
@@ -254,9 +275,12 @@ $PSVersionTable.PSVersion
 codex exec --enable image_generation -
 ```
 
-このフラグを追加するだけで、私の環境ではそのまま画像生成が通りました。
-同梱のスクリプト `codex-image-batch.sh` も、feature が無効のときだけ
-内部でこのフラグを付けるようにしています。
+[Codex CLI reference](https://developers.openai.com/codex/cli/reference) に
+よれば、`--enable` はグローバルフラグで、渡した値は内部的に
+`-c features.<name>=true` と等価に設定されます。私の環境では、このフラグ
+を付けた時に画像生成が通りました。同梱のスクリプト
+`codex-image-batch.sh` も、`codex features list` で feature が無効と
+表示されるときだけ、内部でこのフラグを付けるようにしています。
 
 **方法 B: `~/.codex/config.toml` に設定を書く**
 
@@ -265,13 +289,15 @@ codex exec --enable image_generation -
 image_generation = true
 ```
 
-この 2 行を書き加えると、私の環境では `codex`（対話起動）でも
+この 2 行を書き加えると、私の環境では対話起動の `codex` でも
 `codex exec` でも、フラグなしで画像生成が通りました。毎回フラグを
-書くのが煩わしいときは、こちらが扱いやすく感じました。
+書くのが煩わしいときは、こちらが扱いやすく感じました。`config.toml` の
+構造は [Config basics](https://developers.openai.com/codex/config-basic)
+を参照してください。
 
 新しい CLI バージョンでは既定値や有効化の手順が変わる可能性があります。
-別バージョンで試す場合は、まず `codex features list` の表示と公式
-ドキュメントをご確認ください。
+別のバージョンで試す場合は、まず `codex features list` の表示と、
+上記の公式ドキュメントをご確認いただくのが確実です。
 
 ## 最小コマンドでの動作確認結果
 
@@ -296,11 +322,20 @@ printf 'Use the built-in image generation capability only.\nGenerate a square 1:
 codex exec --enable image_generation -i ./input.png "Use the built-in image editing capability only. Change the background to white. Keep the subject, composition, and colors intact. No text, no logo, no watermark."
 ```
 
-**2 枚の画像を組み合わせて編集（1 枚目を base、2 枚目を reference）:**
+**2 枚の画像を組み合わせて編集（1 枚目を base、2 枚目を reference として扱わせたい場合）:**
 
 ```bash
 codex exec --enable image_generation -i ./base.png -i ./reference.png "Use the first image as the base. Transfer the palette and mood from the second image while preserving the composition and main subject of the first image. No text, no logo, no watermark."
 ```
+
+> 補足: [Codex CLI reference](https://developers.openai.com/codex/cli/reference) の
+> `-i` / `--image` の説明は "Attach images to the first message.
+> Repeatable; supports comma-separated lists." で、**複数の `-i` を
+> 並べたときにどちらが base でどちらが reference になるか、という
+> 順序の意味論はドキュメント上は定義されていません**。上のコマンドで
+> そう動いているのは、prompt 側で明示的に "Use the first image as the
+> base. … palette and mood from the second image …" と指示しているから
+> であり、CLI 仕様ではなく prompt 側の指示に従わせた結果です。
 
 実行前の様子見として、私はまず次の 2 行を打ちました。どちらも画像を
 生成しないので副作用の心配はありません。
@@ -632,7 +667,8 @@ Codex の sandbox ドキュメントは、Linux / WSL2 の前提として
 - `--inter-job-delay N` — ジョブ間で `N` 秒待機（デフォルト 2）
 - `--generated-image-wait N` — `~/.codex/generated_images` からの回収
   待機（デフォルト 5 秒）
-- `--retry-count N` — 失敗時の再試行回数（デフォルト 1）
+- `--retry-count N` — 失敗時の **追加** 再試行回数（デフォルト `1`。
+  つまり最初の 1 回 + 再試行 1 回 = 最大 2 回試行）
 - `--retry-delay N` — 再試行の間隔秒数（デフォルト 3）
 - `-h`, `--help` — ヘルプ表示
 
@@ -654,7 +690,24 @@ Codex の sandbox ドキュメントは、Linux / WSL2 の前提として
 - 既存の PNG が自動で上書きされると思い込む。デフォルトは skip。上書き
   したいときだけ `--overwrite` を付ける。
 - `C:\...` や `\\wsl.localhost\...` は絶対に失敗すると思い込む。よくある
-  形は自動で Linux パスに変換した。
+  形は自動で Linux パスに変換した。ただし `\\wsl.localhost\` と
+  `\\wsl$\` 以外の UNC（例: `\\server\share\...`）は変換対象外です。
+
+スクリプト寄りの注意点も 3 つだけ添えておきます（私の凡ミスではない
+ですが、同じところで迷う方がいそうなので）:
+
+- **1 ジョブが固まったときの抜け方** — スクリプトは `codex exec` に
+  タイムアウトを設けていません。ネットワーク停止などで 1 ジョブが
+  長時間ハングすると、バッチ全体が待ち続けます。その場合は `Ctrl-C`
+  で抜けてから、問題の spec を切り分けてください。
+- **同じ出力ディレクトリで並行実行しない** — 複数のスクリプト（または
+  複数の `codex` 呼び出し）を同時に走らせると、fallback で
+  `~/.codex/generated_images` から拾う際に他プロセスの PNG を拾う
+  可能性があります。1 つずつ順に走らせるのが無難でした。
+- **`raw log` ファイルには Codex の stdout/stderr がそのまま残る** —
+  API エラー時にはパスやエラー断片が含まれることもあります。ログを
+  他人に共有するときは、目視で一度ご確認ください。`.gitignore` では
+  `*.log.txt` を除外しているのでコミット事故は防げます。
 
 ## はじめての方への補足
 
