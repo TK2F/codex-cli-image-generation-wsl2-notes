@@ -31,7 +31,7 @@
 
 | 目的 | 開く |
 | --- | --- |
-| 私が実際に走らせたコマンドだけを追いたい（再現確認） | [QUICKSTART.ja.md](QUICKSTART.ja.md) / [QUICKSTART.en.md](QUICKSTART.en.md) |
+| このレポジトリの検証結果、テストしたコマンド群をチェックしたい（再現確認） | [QUICKSTART.ja.md](QUICKSTART.ja.md) / [QUICKSTART.en.md](QUICKSTART.en.md) |
 | 環境バージョン、検証した結果、アスペクト比、JSON spec、よく聞く話との対比まで読みたい | [README.ja.md](README.ja.md) / [README.en.md](README.en.md) |
 | 変更履歴 | [CHANGELOG.md](CHANGELOG.md) |
 
@@ -81,7 +81,7 @@ and QUICKSTART files for the updated recovery steps.
 
 | If you want to... | Open |
 | --- | --- |
-| Reproduce the exact commands I ran | [QUICKSTART.en.md](QUICKSTART.en.md) / [QUICKSTART.ja.md](QUICKSTART.ja.md) |
+| Check the repository's observed results and tested commands | [QUICKSTART.en.md](QUICKSTART.en.md) / [QUICKSTART.ja.md](QUICKSTART.ja.md) |
 | Read the full write-up — versions, observations, aspect ratios, JSON spec, and a review of common claims against what I saw here | [README.en.md](README.en.md) / [README.ja.md](README.ja.md) |
 | Review release history | [CHANGELOG.md](CHANGELOG.md) |
 
