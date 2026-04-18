@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "defaults": {
+    "language": "ja",
+    "codex_model": "gpt-5.4",
+    "output_dir": "./outputs",
+    "constraints": "文字、ロゴ、透かしは入れないでください。"
+  },
+  "jobs": [
+    {
+      "name": "poster_tokyo_rain",
+      "mode": "generate",
+      "aspect_ratio": "portrait",
+      "style_preset": "cinematic",
+      "subject": "雨上がりの夜の東京の路地に立つ主人公を、シネマティックなキービジュアルとして描いてください。",
+      "scene": "ネオン反射、濡れた地面、奥行きのある構図。"
+    },
+    {
+      "name": "perfume_luxury",
+      "mode": "generate",
+      "language": "en",
+      "aspect_ratio": "square",
+      "style_preset": "product_render",
+      "prompt": "Create a luxury product photo of a perfume bottle on a dark background with dramatic lighting, elegant reflections, and premium advertising quality."
+    },
+    {
+      "name": "desert_scifi",
+      "mode": "generate",
+      "aspect_ratio": "landscape",
+      "style_preset": "cinematic",
+      "subject": "近未来の砂漠都市を見下ろすSFキービジュアルを作ってください。",
+      "scene": "壮大なスケール、夕景、空気遠近法。"
+    },
+    {
+      "name": "strawberry_food",
+      "mode": "generate",
+      "language": "en",
+      "aspect_ratio": "portrait",
+      "prompt": "Create a premium food photograph of ripe strawberries with soft natural light, shallow depth of field, vivid texture, and an elegant editorial atmosphere."
+    },
+    {
+      "name": "anime_character_bluecoat",
+      "mode": "generate",
+      "aspect_ratio": "square",
+      "subject": "アニメ調の女性キャラクターの全身ビジュアルを生成してください。",
+      "scene": "青いコート、白いインナー、黒いブーツ、落ち着いた色調、無地背景。"
+    }
+  ]
+}
