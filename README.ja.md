@@ -171,19 +171,19 @@ flowchart TD
 
 | 項目 | 今回の実測値 | 確認コマンド |
 | --- | --- | --- |
-| Windows | Windows 11 | PowerShell: `winver`、または `Get-ComputerInfo \| Select-Object WindowsProductName, WindowsVersion, OsBuildNumber` |
+| Windows | Windows 11（ビルド `10.0.26200.8037`） | PowerShell: `winver`、または `Get-ComputerInfo \| Select-Object WindowsProductName, WindowsVersion, OsBuildNumber` |
 | PowerShell | — | PowerShell: `$PSVersionTable.PSVersion` |
-| WSL | WSL2 | PowerShell: `wsl --version`、または `wsl --status` |
-| Ubuntu ディストリビューション | Ubuntu（LTS） | Bash: `cat /etc/os-release`、または `lsb_release -a` |
-| カーネル | — | Bash: `uname -r` |
-| Bash | — | Bash: `bash --version` |
+| WSL | `2.6.3.0`（WSLg `1.0.71`） | PowerShell: `wsl --version`、または `wsl --status` |
+| Ubuntu ディストリビューション | Ubuntu `24.04.4 LTS`（Noble Numbat） | Bash: `cat /etc/os-release`、または `lsb_release -a` |
+| カーネル | `6.6.87.2-microsoft-standard-WSL2` | Bash: `uname -r` |
+| Bash | `5.2.21(1)-release` | Bash: `bash --version` |
 | Codex CLI | `codex-cli 0.121.0` | Bash: `codex --version` |
 | Codex feature 状態 | `image_generation` が有効 | Bash: `codex features list` |
-| Node.js | — （nvm 経由で LTS） | Bash: `node --version` |
-| npm | — | Bash: `npm --version` |
+| Node.js | `v24.14.1`（nvm 経由） | Bash: `node --version` |
+| npm | `11.12.1` | Bash: `npm --version` |
 | nvm | — | Bash: `nvm --version` |
-| jq | — | Bash: `jq --version` |
-| python3 | — | Bash: `python3 --version` |
+| jq | `jq-1.7` | Bash: `jq --version` |
+| python3 | `Python 3.12.3` | Bash: `python3 --version` |
 | bubblewrap | — | Bash: `bwrap --version` |
 
 まとめて記録したい場合は、WSL 側の Bash で次の 1 行を実行するとコピー

@@ -33,3 +33,6 @@ secrets.json
 auth.json
 .codex-session
 .codex/
+
+# Claude Code local state (never commit to a public repo)
+.claude/

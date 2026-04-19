@@ -52,7 +52,6 @@ jobs:
           test -f share/QUICKSTART.en.md
           test -f share/CHANGELOG.md
           test -f share/docs/RETEST-2026-04-19.md
-          test -f share/docs/FEATURED-HERO-IMAGES.md
           test -f share/examples/gallery/README.md
           test -f share/examples/gallery/blue-sphere-no-enable.png
           test -f share/examples/gallery/blue-sphere-with-enable.png

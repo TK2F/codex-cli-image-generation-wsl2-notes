@@ -14,13 +14,64 @@
 いたところ、実際に出力できたので、自分のための覚書として残したものを、
 同じ疑問を持つ皆さん向けに共有するリポジトリです。
 
+## 30 秒でわかる通し方
+
+> 「Windows 11 + WSL2 上の Codex CLI で、結局どうやって画像生成したの？」に最短で答える節です。
+
+**環境**
+
+- Windows 11 + WSL2 (Ubuntu 24.04 LTS)
+- bash から Codex CLI を起動
+- `codex-cli 0.121.0`
+- ※ `image_generation` はデフォルトだと `false` のように見えました
+
+**最小で通ったコマンド**
+
+```bash
+codex exec --enable image_generation "猫の肖像画を描いて"
+```
+
+これで生成されました。縦長 (9:16) / 横長 (16:9) / 正方形 (1:1) いずれも通っています。
+
+**毎回フラグを付けず、設定で常時 ON にしたい場合**
+
+`~/.codex/config.toml` に以下を追記すると、`--enable image_generation` なしでも通るようになります。
+
+```toml
+[features]
+image_generation = true
+```
+
+**保存先に注意**
+
+生成された PNG は `--output-dir` で指定した場所ではなく、`~/.codex/generated_images/<session-id>/` に保存されました。回収手順は [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) にまとめています。
+
+詳しいコマンド全量と再現手順は [QUICKSTART.ja.md](QUICKSTART.ja.md) / [README.ja.md](README.ja.md) にあります。
+
+## 必要なツールと導入コマンド
+
+上記のコマンドを走らせる前に、WSL2 Ubuntu 側で以下を入れておきます。
+
+```bash
+# Codex CLI 本体（Node.js が必要。本検証では Node v24 を使用）
+npm install -g @openai/codex
+codex --version   # 動作確認
+
+# 同梱ヘルパースクリプトや JSON 操作で使う追加パッケージ
+sudo apt update
+sudo apt install -y jq python3 bubblewrap coreutils findutils gawk grep
+```
+
+実測したバージョンの一覧は [README.ja.md](README.ja.md) の環境表を参照してください。
+
+## ライセンス
+
+MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
+
 **ここでいう「皆さん」とは、次のような方を想定しています。**
 
 - Codex CLI や WSL2 をこれから触ろうとしていて、画像生成が実際に動く
   のかを手元で確かめたい方
-- 公式のドキュメントで概要は掴んだけれど、「自分の環境で通るコマンドの
-  最小形」を具体例で見たい方
-- 複数の画像生成を JSON や Bash でまとめて回すときの入口を探している方
 - AI × CLI でのワークフローに興味があり、他の人の検証記録を参考にしたい方
 
 > これは 2026-04-18 時点での、私一人 + Codex 分の検証結果をまとめた
@@ -55,7 +106,7 @@
 - `share/README.md` と `share/QUICKSTART.*` の導線が、今の公開意図と一致しているか
 - まだ実機で生成していない画像や未確認の挙動を、観測済みの事実として書いていないか
 
-## どこから読むか
+## レポジトリの全体像と読み進め方
 
 | 目的 | 開く |
 | --- | --- |
@@ -88,6 +139,62 @@ driven for image generation and editing from a WSL2 Ubuntu Bash shell on
 Windows 11. Output did come through, so I wrote up the memo I was
 keeping for myself and am sharing it here for anyone wondering the same
 thing.
+
+## 30-second walkthrough
+
+> The shortest answer to "How did you actually run image generation with Codex on Windows 11 + WSL2?"
+
+**Environment**
+
+- Windows 11 + WSL2 (Ubuntu 24.04 LTS)
+- Bash shell driving Codex CLI
+- `codex-cli 0.121.0`
+- Note: `image_generation` appeared to be `false` by default
+
+**Smallest command that worked**
+
+```bash
+codex exec --enable image_generation "Portrait of a cat"
+```
+
+Image generation went through. Portrait (9:16), landscape (16:9), and square (1:1) all worked.
+
+**To enable it persistently without the flag**
+
+Add this to `~/.codex/config.toml`:
+
+```toml
+[features]
+image_generation = true
+```
+
+After this, `--enable image_generation` is no longer needed.
+
+**Where the PNGs land**
+
+The output PNG was stored under `~/.codex/generated_images/<session-id>/`, not the `--output-dir` you pass. Recovery steps are in [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md).
+
+Full commands and observations live in [QUICKSTART.en.md](QUICKSTART.en.md) / [README.en.md](README.en.md).
+
+## Prerequisites and setup commands
+
+Before running the command above, install the following on WSL2 Ubuntu:
+
+```bash
+# Codex CLI itself (requires Node.js; this run used Node v24)
+npm install -g @openai/codex
+codex --version   # sanity check
+
+# Extra packages used by the bundled helper script and JSON workflows
+sudo apt update
+sudo apt install -y jq python3 bubblewrap coreutils findutils gawk grep
+```
+
+For the exact versions I measured on my machine, see the environment table in [README.en.md](README.en.md).
+
+## License
+
+MIT License. See [LICENSE](LICENSE).
 
 > This is a personal record of what one person plus Codex observed on
 > 2026-04-18. It is not a recommendation of the exact commands or the
@@ -153,7 +260,3 @@ These are real outputs already included in this shared subset:
 
 For prompts and notes, open
 [examples/gallery/README.md](examples/gallery/README.md).
-
-Planned top-page landscape hero images are specified in
-[docs/FEATURED-HERO-IMAGES.md](docs/FEATURED-HERO-IMAGES.md), but they are not
-committed yet because this snapshot does not include a fresh re-test for them.

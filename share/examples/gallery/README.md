@@ -57,5 +57,3 @@ Use the built-in image generation capability only. Generate a square 1:1 image o
   output path may be wrong and that internal-storage recovery may be required.
 - Multi-image and character-reference examples are described in the sample JSON
   files, but those larger reference assets are not bundled into this gallery.
-- Planned top-page hero images are defined separately in
-  [../../docs/FEATURED-HERO-IMAGES.md](../../docs/FEATURED-HERO-IMAGES.md).

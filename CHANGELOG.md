@@ -1,70 +1,48 @@
 # Changelog
 
-## 2026-04-19 — review refresh
+## 2026-04-19 — initial public share
 
-Follow-up refresh based on the re-test evidence captured under
-`review-evidence/20260419-054302/`.
+First public share of a personal verification memo by TK2LAB and Codex,
+covering what was observed on 2026-04-18 in a WSL2 Ubuntu Bash shell on
+Windows 11 with `codex-cli 0.121.0`, plus a 2026-04-19 re-test.
 
-**Changed**
+**Contents**
 
-- Corrected the docs to match the observed storage behavior: image
-  generation and editing succeeded, but the PNGs landed under
+- `README.md` / `README.ja.md` / `README.en.md` — bilingual landing and
+  per-language write-up: environment versions and how to check them, the
+  two methods used to enable `image_generation`, smallest working command,
+  aspect-ratio behavior, JSON spec shape, and a review of common claims
+  against what was actually observed.
+- `QUICKSTART.ja.md` / `QUICKSTART.en.md` — reproduction quickstart with
+  the environment, an official-docs-first setup flow, commands run
+  verbatim, and helper-script usage.
+- `codex-image-batch.sh` — a small Bash helper for running multiple
+  image-generation / image-edit jobs from a JSON spec. Supports
+  `--doctor`, `--preview`, `--manual`, `--list-presets`, retry, inter-job
+  delay, a confirmation prompt, and a `~/.codex/generated_images`
+  fallback recovery path.
+- `examples/codex-image-batch.sample.json` — generation job samples,
+  including a multi-reference character example.
+- `examples/codex-image-edit-batch.sample.json` — image-edit job samples.
+- `examples/input/README.md` — placeholder folder for edit-input images.
+- `examples/gallery/README.md` and `examples/gallery/*.png` — a small,
+  metadata-stripped gallery of the re-test outputs with prompt notes.
+- `docs/RETEST-2026-04-19.md` — public-safe summary of the 2026-04-19
+  re-test: what still held up, what had to be reframed, and manual
+  recovery for PNGs that landed under
+  `~/.codex/generated_images/<session-id>/`.
+- `.github/workflows/ci.yml` — `bash -n`, `shellcheck`, and sample-JSON
+  validation for the helper script.
+- `LICENSE` — MIT.
+- `.gitignore` — excludes helper-script outputs, raw logs, run summaries,
+  local env / secrets, editor/OS noise, and local Codex/Claude state.
+
+**Key observations captured here**
+
+- Image generation and editing succeeded, but the PNGs landed under
   `~/.codex/generated_images/<session-id>/` rather than the requested
-  workdir path.
-- Added a manual recovery flow using the `session id` from the run log.
-- Reframed `--enable image_generation` as a valid flag that behaved as
-  a practical no-op when config already had `image_generation = true`.
-- Clarified that enabling sandbox network access was not required for
-  the successful image-generation runs captured in the evidence pack.
-- Unified the method ordering across README and QUICKSTART, and added
-  the persistent CLI path `codex features enable image_generation`.
-- Added a small GitHub Actions workflow for `bash -n`, `shellcheck`,
-  and sample JSON validation.
-- Added a public-safe re-test summary under `docs/RETEST-2026-04-19.md`
-  plus a small `examples/gallery/` set with prompt metadata.
-- Added a multi-reference character example to
-  `examples/codex-image-batch.sample.json` and documented the
-  `reference_images` alias in the input notes and README.
-
-**Fixed**
-
-- Removed a few `shellcheck` warnings in `codex-image-batch.sh`.
-- Made numbered interactive choices in `codex-image-batch.sh` more
-  explicit.
-- Tightened helper-script recovery so it prefers the exact
-  `session id` directory under `~/.codex/generated_images/` before
-  falling back to a broader filesystem scan.
-- Added `session_id` / `internal_output_path` to helper-script summary
-  output when available.
-
-## 2026-04-19 — initial share
-
-First private-publication cut of a personal memo by TK2LAB and Codex,
-describing what was observed on 2026-04-18 in a WSL2 Ubuntu Bash shell
-on Windows 11, running `codex-cli 0.121.0`.
-
-**Added**
-
-- `codex-image-batch.sh` — a small Bash helper script for running
-  multiple image-generation / image-edit jobs from a JSON spec.
-  Includes `--doctor`, `--preview`, `--manual`, `--list-presets`,
-  retry, inter-job delay, a confirmation prompt, and a
-  `~/.codex/generated_images` fallback recovery path.
-- `examples/codex-image-batch.sample.json` — five sample generation
-  jobs.
-- `examples/codex-image-edit-batch.sample.json` — three sample edit
-  jobs.
-- `examples/input/README.md` — placeholder folder for edit-input
-  images.
-- `README.md` — bilingual landing page with status, disclaimer, and
-  entry points.
-- `README.ja.md` / `README.en.md` — per-language write-up of the
-  observations: environment versions and how to check them, the two
-  methods used to enable `image_generation`, minimum working commands,
-  aspect-ratio behavior, JSON spec shape, a review of common claims
-  against what was observed here, and official references.
-- `QUICKSTART.ja.md` / `QUICKSTART.en.md` — reproduction-style
-  quickstart with the environment, an official-docs-first setup flow
-  summary, the commands run verbatim, and the helper script usage.
-- `.gitignore` — excludes helper-script outputs, raw logs, run
-  summaries, common editor/OS noise, and local secrets.
+  workdir path. Recovery uses the `session id` from the run log.
+- `--enable image_generation` is a valid flag but behaves as a practical
+  no-op when `config.toml` already has `image_generation = true`.
+- Enabling sandbox network access was not required for the successful
+  image-generation runs observed here.

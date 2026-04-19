@@ -178,19 +178,19 @@ filled in by running the listed command on your machine.
 
 | Item | This run | How to check |
 | --- | --- | --- |
-| Windows | Windows 11 | PowerShell: `winver`, or `Get-ComputerInfo \| Select-Object WindowsProductName, WindowsVersion, OsBuildNumber` |
+| Windows | Windows 11 (build `10.0.26200.8037`) | PowerShell: `winver`, or `Get-ComputerInfo \| Select-Object WindowsProductName, WindowsVersion, OsBuildNumber` |
 | PowerShell | — | PowerShell: `$PSVersionTable.PSVersion` |
-| WSL | WSL2 | PowerShell: `wsl --version`, or `wsl --status` |
-| Ubuntu distribution | Ubuntu (LTS) | Bash: `cat /etc/os-release`, or `lsb_release -a` |
-| Kernel | — | Bash: `uname -r` |
-| Bash | — | Bash: `bash --version` |
+| WSL | `2.6.3.0` (WSLg `1.0.71`) | PowerShell: `wsl --version`, or `wsl --status` |
+| Ubuntu distribution | Ubuntu `24.04.4 LTS` (Noble Numbat) | Bash: `cat /etc/os-release`, or `lsb_release -a` |
+| Kernel | `6.6.87.2-microsoft-standard-WSL2` | Bash: `uname -r` |
+| Bash | `5.2.21(1)-release` | Bash: `bash --version` |
 | Codex CLI | `codex-cli 0.121.0` | Bash: `codex --version` |
 | Codex feature state | `image_generation` enabled | Bash: `codex features list` |
-| Node.js | — (LTS via nvm) | Bash: `node --version` |
-| npm | — | Bash: `npm --version` |
+| Node.js | `v24.14.1` (via nvm) | Bash: `node --version` |
+| npm | `11.12.1` | Bash: `npm --version` |
 | nvm | — | Bash: `nvm --version` |
-| jq | — | Bash: `jq --version` |
-| python3 | — | Bash: `python3 --version` |
+| jq | `jq-1.7` | Bash: `jq --version` |
+| python3 | `Python 3.12.3` | Bash: `python3 --version` |
 | bubblewrap | — | Bash: `bwrap --version` |
 
 To collect the WSL-side values in one pass, this snippet is convenient:
