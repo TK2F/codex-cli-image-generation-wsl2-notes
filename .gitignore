@@ -3,12 +3,22 @@ examples/outputs/
 examples/edited-outputs/
 outputs/
 edited-outputs/
+generated/
+generated_images/
+.codex-generated/
 
 # Per-job raw logs and run summaries
 *.log.txt
+*.log
+*.codex.log.txt
+*.session.json
+*.trace
+*.tmp
 codex-image-batch-run-*.json
 review-evidence/
 review-evidence-*.tar.gz
+logs/
+raw-logs/
 
 # Editor / OS / dependency noise
 .DS_Store
@@ -29,6 +39,7 @@ __pycache__/
 !.env.example
 *.pem
 *.key
+*.secret
 secrets.json
 auth.json
 .codex-session
@@ -36,3 +47,10 @@ auth.json
 
 # Claude Code local state (never commit to a public repo)
 .claude/
+
+# Local input images that may not be public
+examples/input/*.png
+examples/input/*.jpg
+examples/input/*.jpeg
+examples/input/*.webp
+!examples/input/README.md

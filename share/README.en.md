@@ -1,5 +1,17 @@
 # Codex CLI Image Generation from WSL2 Ubuntu — Personal Notes (as of 2026-04-18)
 
+## Scope of this repository
+
+This `share/` package is the public-facing subset of the repository.
+
+It is not an official guide and does not guarantee reproducibility. It records what worked in this specific Windows 11 + WSL2 Ubuntu + Bash environment at the time of testing.
+
+Where possible, the notes distinguish between:
+
+- Officially documented: behavior or options confirmed in official documentation
+- Confirmed in this environment: behavior that was tested and worked in this specific setup
+- Inferred: behavior inferred from test results and subject to change in future versions
+
 This is the memo I kept while TK2LAB and Codex were checking whether
 `codex` could really be driven for image generation and editing from a
 WSL2 Ubuntu Bash shell on Windows 11. Output did come through, so the
@@ -233,7 +245,7 @@ outside that envelope, this report stays silent rather than generalizing.
   both generation and edit flows.
 - In the 2026-04-19 re-test, generated files appeared under
   `~/.codex/generated_images/<session-id>/` rather than the
-  user-requested workdir path.
+  working-directory path expected by the prompt or helper flow.
 - The text-side model flow was observed as GPT-5.4-class. Which
   image-model alias the CLI selected per call was not directly
   observable from the CLI surface in this run.

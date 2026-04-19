@@ -12,6 +12,18 @@ through, which aspect ratios produced output, how `image_generation`
 looked on first install, and where a small JSON-driven helper script
 started to earn its keep.
 
+## Scope of this repository
+
+This repository is a personal technical note about testing Codex CLI image generation and image editing from a Windows 11 + WSL2 Ubuntu + Bash environment.
+
+It is not an official guide and does not guarantee reproducibility. It records what worked in this specific environment at the time of testing.
+
+Where possible, the notes distinguish between:
+
+- Officially documented: behavior or options confirmed in official documentation
+- Confirmed in this environment: behavior that was tested and worked in this specific setup
+- Inferred: behavior inferred from test results and subject to change in future versions
+
 > This is a personal memo captured on 2026-04-18 by one person plus
 > Codex. It is not a recommendation of the exact commands or steps.
 > Codex CLI evolves quickly; future releases, behavior changes, new
@@ -96,7 +108,9 @@ the same commands is where the report earns its usefulness.
 
 ---
 
-## 30-second summary
+## 30-second summary: what worked in this environment
+
+> This is the shortest summary of what worked in this specific Windows 11 + WSL2 Ubuntu + Bash test environment.
 
 - Image generation and editing both worked from a Bash shell inside WSL2
   Ubuntu using `codex exec`.
@@ -113,6 +127,40 @@ the same commands is where the report earns its usefulness.
   keep once the workflow moved from one image to several.
 - The Codex CLI docs explicitly state the CLI supports image generation
   and editing ([reference](#official-references-used)).
+
+Note: In this environment, `image_generation` appeared not to be enabled by default.
+This behavior may change depending on the Codex CLI version or future updates.
+
+### Command that worked in this environment
+
+```bash
+codex exec --enable image_generation "Portrait of a cat"
+```
+
+In this environment, the command above successfully produced an image. Portrait (9:16), landscape (16:9), and square (1:1) outputs also worked in the same test environment.
+
+### Enabling the feature persistently
+
+In this environment, adding the following to `~/.codex/config.toml` allowed image generation to run without passing `--enable image_generation` every time.
+
+```toml
+[features]
+image_generation = true
+```
+
+This is a behavior confirmed in this test environment. Required settings or behavior may change in future Codex CLI versions.
+
+### Where the PNGs landed
+
+In this environment, the generated PNGs were stored under:
+
+```text
+~/.codex/generated_images/<session-id>/
+```
+
+rather than the working directory expected by the prompt or helper script.
+
+For that reason, the helper script includes a recovery step that copies generated images from the corresponding Codex generated-images session directory. See [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) for the detailed recovery notes.
 
 ## The stack and flow at a glance (diagrams)
 
@@ -233,7 +281,7 @@ outside that envelope, this report stays silent rather than generalizing.
   both generation and edit flows.
 - In the 2026-04-19 re-test, generated files appeared under
   `~/.codex/generated_images/<session-id>/` rather than the
-  user-requested workdir path.
+  working-directory path expected by the prompt or helper flow.
 - The text-side model flow was observed as GPT-5.4-class. Which
   image-model alias the CLI selected per call was not directly
   observable from the CLI surface in this run.
@@ -560,12 +608,16 @@ felt tedious, and a JSON file looked like a convenient way to manage
 the work. So I thought "let me try stitching it together" and put
 together a small Bash script. That became `codex-image-batch.sh`.
 
-**I am not pitching it as a tool.** It is what I ended up with while
-doing this check; use it if it happens to be useful, and replace it
-freely if something else fits your work better — Make / Taskfile,
-a custom Python driver, parallel execution tools, an existing CI
-orchestrator, and so on. This script works as either a starting point
-or a counter-example, whichever is more helpful.
+In this environment, I used that script to run multiple jobs and recover
+generated PNGs from Codex-managed storage. **I am not pitching it as a
+tool.** It is a reference implementation, not an official utility. If
+something else fits your work better — Make / Taskfile, a custom Python
+driver, parallel execution tools, an existing CI orchestrator, and so on
+— replace it freely.
+
+Future Codex CLI changes, storage changes, parallel execution, or
+cross-session collisions may break the recovery flow, so treat the
+script as a practical example rather than a guaranteed workflow.
 
 Seven small conveniences ended up in the script as a natural
 consequence of running several jobs in sequence:
@@ -581,6 +633,12 @@ consequence of running several jobs in sequence:
 
 The script is a single Bash file with only `jq` and `python3` as
 external dependencies, short enough to read through end to end.
+
+Notes:
+
+- Be careful with parallel runs so you do not recover images from the wrong session.
+- Prefer recovery from the directory tied to the specific `session id`.
+- Raw logs and temporary files can contain local paths, prompts, and environment details. Keep them out of the public repository.
 
 ## doctor → preview → run (the order I used)
 
@@ -946,6 +1004,36 @@ through the same path has fewer surprises:
   `.gitignore` already excludes `*.log.txt`, so commits are safe by
   default, but it is worth eyeballing a log before sharing it with
   someone else.
+
+## Public-safety note
+
+This repository is intended to contain only public-facing notes and sanitized examples.
+
+The following should not be committed:
+
+- API keys, access tokens, or credentials
+- Email addresses, phone numbers, addresses, or other personal information
+- Private project names, customer names, internal domains, or non-public URLs
+- Raw logs or full execution traces
+- Local machine-specific paths that reveal usernames or private directories
+- Unpublished assets or reference images with unclear rights
+- Real-person or client-provided input images
+
+The committed examples are intended to be a public subset only. Full raw evidence bundles should remain local/private.
+
+## How to read this memo
+
+This repository is meant to share what was actually tested in this environment for Codex CLI image generation and editing.
+
+Its value is not only the successful commands, but also the points that are easy to miss:
+
+- `image_generation` appeared to require explicit enablement
+- Persisting the setting in config changed the workflow
+- Generated PNGs landed under Codex-managed `generated_images` storage rather than the working directory
+- Recovery logic was needed to copy files back into the repo workspace
+- Raw logs and private assets were intentionally kept out of the public tree
+
+This is not a statement of official product behavior. If you try the same flow elsewhere, verify the Codex CLI version, official documentation, auth state, and actual output location on your own machine.
 
 ## A note for readers new to the tooling
 

@@ -14,37 +14,55 @@
 いたところ、実際に出力できたので、自分のための覚書として残したものを、
 同じ疑問を持つ皆さん向けに共有するリポジトリです。
 
-## 30 秒でわかる通し方
+## このリポジトリの位置づけ
 
-> 「Windows 11 + WSL2 上の Codex CLI で、結局どうやって画像生成したの？」に最短で答える節です。
+この `share/` フォルダは、公開向けに切り出した配布用サブセットです。
+
+この内容は、Codex CLI の画像生成・画像編集まわりについて、Windows 11 + WSL2 Ubuntu + Bash 環境で実際に試した内容をまとめた個人メモです。公式手順書ではなく、本環境で動作を確認した結果を、公開しやすい形に整理したものです。
+
+本リポジトリでは、できるだけ次のように情報を分けて記載します。
+
+- 公式確認済み: 公式ドキュメントで確認できる仕様・説明
+- 本環境で動作確認済み: 本検証環境で実際に試し、動作を確認した内容
+- 推定: 検証結果から推測した内容。将来のバージョンでは変わる可能性があります
+
+## 30秒でわかる、本環境で通った方法
+
+> 「Windows 11 + WSL2 上の Codex CLI で、画像生成は実際に通ったのか？」に対する、本検証環境での最短メモです。
 
 **環境**
 
 - Windows 11 + WSL2 (Ubuntu 24.04 LTS)
 - bash から Codex CLI を起動
 - `codex-cli 0.121.0`
-- ※ `image_generation` はデフォルトだと `false` のように見えました
+- 検証日: 2026-04-18 / 2026-04-19
 
-**最小で通ったコマンド**
+※ 本環境では、`image_generation` は初期状態では有効化されていないように見えました。
+※ この挙動は、Codex CLI のバージョンや将来の更新により変わる可能性があります。
+
+**本環境で画像生成が通ったコマンド**
 
 ```bash
 codex exec --enable image_generation "猫の肖像画を描いて"
 ```
 
-これで生成されました。縦長 (9:16) / 横長 (16:9) / 正方形 (1:1) いずれも通っています。
+本環境では、上記のコマンドで画像生成が動作することを確認しました。
+また、本検証では、縦長 (9:16) / 横長 (16:9) / 正方形 (1:1) の指定でも生成が通ることを確認しました。
 
-**毎回フラグを付けず、設定で常時 ON にしたい場合**
+**毎回フラグを付けない場合**
 
-`~/.codex/config.toml` に以下を追記すると、`--enable image_generation` なしでも通るようになります。
+本環境では、`~/.codex/config.toml` に以下を追記したところ、毎回 `--enable image_generation` を付けなくても画像生成が通ることを確認しました。
 
 ```toml
 [features]
 image_generation = true
 ```
 
+これは本検証環境で確認した挙動です。Codex CLI の今後の更新により、必要な設定や挙動が変わる可能性があります。
+
 **保存先に注意**
 
-生成された PNG は `--output-dir` で指定した場所ではなく、`~/.codex/generated_images/<session-id>/` に保存されました。回収手順は [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) にまとめています。
+本環境では、生成されたPNGが作業ディレクトリではなく、`~/.codex/generated_images/<session-id>/` 配下に保存されることを確認しました。回収手順は [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) にまとめています。
 
 詳しいコマンド全量と再現手順は [QUICKSTART.ja.md](QUICKSTART.ja.md) / [README.ja.md](README.ja.md) にあります。
 
@@ -67,6 +85,20 @@ sudo apt install -y jq python3 bubblewrap coreutils findutils gawk grep
 ## ライセンス
 
 MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
+
+## 公開時の安全性について
+
+この `share/` フォルダは、外部共有しやすいように切り出した公開向けサブセットです。次の情報は含めない方針にしています。
+
+- APIキー、アクセストークン、認証情報
+- メールアドレス、住所、電話番号などの個人情報
+- 非公開プロジェクト名、社内ドメイン、顧客名などの内部情報
+- raw log、完全な実行ログ、ローカル環境固有の詳細ログ
+- 未公開素材、権利関係が不明な参照画像
+- 実在人物やクライアント素材を含む入力画像
+- ローカルユーザー名やホームディレクトリ名が含まれるファイルパス
+
+公開している画像・サンプル・ログは、外部共有できる範囲に絞ったものです。完全な raw evidence bundle は公開対象に含めていません。
 
 **ここでいう「皆さん」とは、次のような方を想定しています。**
 
@@ -104,7 +136,7 @@ MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
 - `share/docs/RETEST-2026-04-19.md` の内容が、現時点で共有したい結論と一致しているか
 - `share/examples/gallery/*.png` が metadata strip 済みで、公開したくない情報を含まないか
 - `share/README.md` と `share/QUICKSTART.*` の導線が、今の公開意図と一致しているか
-- まだ実機で生成していない画像や未確認の挙動を、観測済みの事実として書いていないか
+- まだ実機で生成していない画像や未確認の挙動を、確認済みの事実として書いていないか
 
 ## レポジトリの全体像と読み進め方
 
@@ -117,8 +149,11 @@ MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
 ## 同梱ファイル
 
 - `codex-image-batch.sh` — 複数枚の生成・編集ジョブを JSON で流せると
-  便利だったので書いた個人的な Bash 補助スクリプト。お勧めではなく、
-  あくまで参考実装です。より良い書き方・設計はきっとあります。
+  便利だったので書いた個人的な Bash 補助スクリプトです。本環境では、
+  このスクリプトを使って複数ジョブの実行と生成画像の回収を確認しました。
+  ただし、これは公式ツールではなく、あくまで参考実装です。Codex CLI の
+  今後の仕様変更、保存先の変更、並列実行、別セッションとの競合などに
+  よって、期待どおりに画像を回収できない可能性があります。
 - `examples/codex-image-batch.sample.json` — 生成ジョブのサンプル × 6
 - `examples/codex-image-edit-batch.sample.json` — 編集ジョブのサンプル × 3
 - `examples/input/README.md` — 編集入力用フォルダのプレースホルダ
@@ -140,41 +175,59 @@ Windows 11. Output did come through, so I wrote up the memo I was
 keeping for myself and am sharing it here for anyone wondering the same
 thing.
 
-## 30-second walkthrough
+## Scope of this repository
 
-> The shortest answer to "How did you actually run image generation with Codex on Windows 11 + WSL2?"
+This `share/` folder is the portable subset intended for external handoff.
+
+This content is a personal technical note about testing Codex CLI image
+generation and image editing from a Windows 11 + WSL2 Ubuntu + Bash
+environment. It is not an official guide; it records what worked in this
+specific setup.
+
+Where possible, the notes distinguish between:
+
+- Officially documented: behavior or options confirmed in official documentation
+- Confirmed in this environment: behavior that was tested and worked in this specific setup
+- Inferred: behavior inferred from test results and subject to change in future versions
+
+## 30-second summary: what worked in this environment
+
+> This is the shortest summary of what worked in this specific Windows 11 + WSL2 Ubuntu + Bash test environment.
 
 **Environment**
 
 - Windows 11 + WSL2 (Ubuntu 24.04 LTS)
 - Bash shell driving Codex CLI
 - `codex-cli 0.121.0`
-- Note: `image_generation` appeared to be `false` by default
+- Test dates: 2026-04-18 / 2026-04-19
 
-**Smallest command that worked**
+Note: In this environment, `image_generation` appeared not to be enabled by default.
+This behavior may change depending on the Codex CLI version or future updates.
+
+**Command that worked in this environment**
 
 ```bash
 codex exec --enable image_generation "Portrait of a cat"
 ```
 
-Image generation went through. Portrait (9:16), landscape (16:9), and square (1:1) all worked.
+In this environment, the command above successfully produced an image. Portrait (9:16), landscape (16:9), and square (1:1) outputs also worked in the same test environment.
 
-**To enable it persistently without the flag**
+**Enabling the feature persistently**
 
-Add this to `~/.codex/config.toml`:
+In this environment, adding the following to `~/.codex/config.toml` allowed image generation to run without passing `--enable image_generation` every time.
 
 ```toml
 [features]
 image_generation = true
 ```
 
-After this, `--enable image_generation` is no longer needed.
+This is a behavior confirmed in this test environment. Required settings or behavior may change in future Codex CLI versions.
 
-**Where the PNGs land**
+**Where the PNGs landed**
 
-The output PNG was stored under `~/.codex/generated_images/<session-id>/`, not the `--output-dir` you pass. Recovery steps are in [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md).
+In this environment, the generated PNGs were stored under `~/.codex/generated_images/<session-id>/` rather than the working directory expected by the prompt or helper script. Recovery steps are in [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md).
 
-Full commands and observations live in [QUICKSTART.en.md](QUICKSTART.en.md) / [README.en.md](README.en.md).
+Full commands and test notes live in [QUICKSTART.en.md](QUICKSTART.en.md) / [README.en.md](README.en.md).
 
 ## Prerequisites and setup commands
 
@@ -196,7 +249,23 @@ For the exact versions I measured on my machine, see the environment table in [R
 
 MIT License. See [LICENSE](LICENSE).
 
-> This is a personal record of what one person plus Codex observed on
+## Public-safety note
+
+This `share/` folder is intended to contain only public-facing notes and sanitized examples.
+
+The following should not be committed:
+
+- API keys, access tokens, or credentials
+- Email addresses, phone numbers, addresses, or other personal information
+- Private project names, customer names, internal domains, or non-public URLs
+- Raw logs or full execution traces
+- Local machine-specific paths that reveal usernames or private directories
+- Unpublished assets or reference images with unclear rights
+- Real-person or client-provided input images
+
+The committed examples are intended to be a public subset only. Full raw evidence bundles should remain local/private.
+
+> This is a personal record of what one person plus Codex confirmed on
 > 2026-04-18. It is not a recommendation of the exact commands or the
 > exact steps used here. Codex CLI evolves quickly, and future releases,
 > behavior changes, new findings, or official announcements may render
@@ -205,7 +274,7 @@ MIT License. See [LICENSE](LICENSE).
 > designs almost certainly exist — exploring variations on your side is
 > the intended spirit of this share.
 
-**Date of observation:** 2026-04-18
+**Test date:** 2026-04-18
 **Environment:** Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`
 **Observers:** TK2LAB and Codex (on the CLI side)
 
@@ -224,15 +293,16 @@ MIT License. See [LICENSE](LICENSE).
 **2026-04-19 re-test note:** A later follow-up run in the same repo
 confirmed that image generation and editing still worked, but the PNGs
 were stored under `~/.codex/generated_images/<session-id>/` rather than
-the user-requested workdir path. See the full language-specific READMEs
-and QUICKSTART files for the updated recovery steps.
+the working-directory location expected by the prompt or helper flow.
+See the full language-specific READMEs and QUICKSTART files for the
+updated recovery steps.
 
 ## Start here
 
 | If you want to... | Open |
 | --- | --- |
-| Check the repository's observed results and tested commands | [QUICKSTART.en.md](QUICKSTART.en.md) / [QUICKSTART.ja.md](QUICKSTART.ja.md) |
-| Read the full write-up — versions, observations, aspect ratios, JSON spec, and what this repository set out to verify and found | [README.en.md](README.en.md) / [README.ja.md](README.ja.md) |
+| Check the repository's tested commands and confirmed results | [QUICKSTART.en.md](QUICKSTART.en.md) / [QUICKSTART.ja.md](QUICKSTART.ja.md) |
+| Read the full write-up — versions, test notes, aspect ratios, JSON spec, and what this repository set out to verify and found | [README.en.md](README.en.md) / [README.ja.md](README.ja.md) |
 | Review release history | [CHANGELOG.md](CHANGELOG.md) |
 
 ## What ships with this package
@@ -249,7 +319,15 @@ and QUICKSTART files for the updated recovery steps.
 - `docs/RETEST-2026-04-19.md` — sanitized public summary of the
   2026-04-19 re-test
 
-## Current observed examples
+## How to read this memo
+
+This `share/` folder keeps only the externally shareable subset of what was tested in this environment for Codex CLI image generation and editing.
+
+Its value is not only the successful commands, but also the operational details that are easy to miss: feature enablement, config behavior, PNG storage location, file recovery, and public-safe cleanup.
+
+This is not a statement of official product behavior. If you try the same flow elsewhere, verify the Codex CLI version, official documentation, auth state, and actual output location on your own machine.
+
+## Current example outputs
 
 These are real outputs already included in this shared subset:
 

@@ -8,7 +8,8 @@ during that check, shared here for anyone with the same question.
 The framing is "here is what I ran and what happened" — use it as a
 reproduction checklist on your own machine and compare.
 
-> This is a personal observation recorded on 2026-04-18. Codex CLI
+> This is a personal technical note recorded on 2026-04-18. It is not
+> an official guide; it records what worked in this environment. Codex CLI
 > evolves quickly, so future releases, behavior changes, new findings,
 > or official announcements may make parts of this report outdated
 > within a short timeframe. Treat this as a single reference point in
@@ -80,7 +81,7 @@ worked. The operational conclusions below held up.
 image_generation = true
 ```
 
-This was the most stable path for repeated use.
+In this environment, this was the most stable path for repeated use.
 
 **Method B: use Codex's persistent feature-management command**
 
@@ -88,7 +89,7 @@ This was the most stable path for repeated use.
 codex features enable image_generation
 ```
 
-This writes the same setting through Codex's own CLI path.
+In this environment, this wrote the same setting through Codex's own CLI path.
 
 **Method C: pass `--enable image_generation` on each `codex exec` call**
 
@@ -96,7 +97,7 @@ This writes the same setting through Codex's own CLI path.
 codex exec --enable image_generation -
 ```
 
-This is a valid flag combination, but in the 2026-04-19 re-test it
+This was a valid flag combination in this environment, but in the 2026-04-19 re-test it
 behaved like a practical no-op once `image_generation = true` was
 already present in config.
 
@@ -109,7 +110,7 @@ docs.
 
 Each one is the minimal one-line form I used during verification. In the
 2026-04-19 re-test, all of them produced images, but not at the
-user-requested workdir path.
+working-directory location expected by the prompt or helper flow.
 
 ### Generation (one image, English prompt, blue sphere on white)
 
@@ -159,7 +160,7 @@ this run.
 
 The 2026-04-19 re-test changed the most important operational detail in
 this repository: image generation and editing succeeded, but Codex did
-not place the PNG in the user-requested workdir path. Instead it stored
+not place the PNG in the working-directory location expected by the prompt or helper flow. Instead it stored
 the image under:
 
 ```text
@@ -185,10 +186,11 @@ Once single-image generation was working, I wanted a simple way to run
 several jobs from a JSON spec — writing out each call by hand felt
 repetitive, and a JSON file looked like a convenient way to manage it.
 So I stitched together a small Bash script to try the idea. That is
-`codex-image-batch.sh`. **I am not pitching it as a tool.** Use it if
-it happens to help; if something else fits your workflow better
-(Make / Taskfile, a custom Python driver, parallel execution tools,
-existing CI orchestrators), please swap it out freely.
+`codex-image-batch.sh`. In this environment, I used it to run multiple
+jobs and recover generated images. **I am not pitching it as a tool.**
+It is a reference implementation rather than an official utility.
+Future Codex CLI changes, storage changes, parallel execution, or
+cross-session collisions may break the recovery flow.
 
 The four commands I used against the script while verifying it:
 
@@ -209,6 +211,12 @@ bash ./codex-image-batch.sh --manual --pause-at-end
 The JSON input schema (single object / array / `defaults` + `jobs`),
 preset list, every flag, and the script's full behavior are all in
 [README.en.md](README.en.md).
+
+Notes:
+
+- Be careful with parallel runs so you do not recover images from the wrong session.
+- Prefer recovery from the directory tied to the specific `session id`.
+- Raw logs and temporary files can contain local paths, prompts, and environment details. Keep them out of the public repository.
 
 ## Where I looked first when results diverged
 
