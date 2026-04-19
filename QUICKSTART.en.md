@@ -1,6 +1,6 @@
 # Reproduction Quickstart — The Commands I Actually Ran (as of 2026-04-18)
 
-While TK2LAB and Codex were checking whether `codex` could really
+While TK2Works and Codex were checking whether `codex` could really
 generate and edit images from a WSL2 Ubuntu Bash shell, several
 commands worked end-to-end. This page is the personal memo I kept
 during that check, shared here for anyone with the same question.

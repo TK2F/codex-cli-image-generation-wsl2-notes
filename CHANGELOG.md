@@ -2,7 +2,7 @@
 
 ## 2026-04-19 — initial public share
 
-First public share of a personal verification memo by TK2LAB and Codex,
+First public share of a personal verification memo by TK2Works and Codex,
 covering what was observed on 2026-04-18 in a WSL2 Ubuntu Bash shell on
 Windows 11 with `codex-cli 0.121.0`, plus a 2026-04-19 re-test.
 

@@ -12,7 +12,7 @@ Where possible, the notes distinguish between:
 - Confirmed in this environment: behavior that was tested and worked in this specific setup
 - Inferred: behavior inferred from test results and subject to change in future versions
 
-This is the memo I kept while TK2LAB and Codex were checking whether
+This is the memo I kept while TK2Works and Codex were checking whether
 `codex` could really be driven for image generation and editing from a
 WSL2 Ubuntu Bash shell on Windows 11. Output did come through, so the
 private notes I was keeping for myself have been tidied up and shared
@@ -36,7 +36,7 @@ started to earn its keep.
 > this share.
 
 **Date of observation:** 2026-04-18
-**Observers:** TK2LAB and Codex (on the CLI side)
+**Observers:** TK2Works and Codex (on the CLI side)
 **Host OS:** Windows 11
 **Runtime:** Ubuntu on WSL2
 **Shell:** Bash (native Windows PowerShell execution is out of scope)

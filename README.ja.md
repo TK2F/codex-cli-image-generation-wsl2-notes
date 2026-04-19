@@ -1,6 +1,6 @@
 # WSL2 Ubuntu から Codex CLI で画像生成を試した個人メモ（2026-04-18 時点）
 
-私（TK2LAB）が Codex と一緒に「Windows 11 の WSL2 Ubuntu + Bash 上で
+私（TK2Works）が Codex と一緒に「Windows 11 の WSL2 Ubuntu + Bash 上で
 `codex` を叩いて、画像生成や画像編集が本当にそのまま通るのか」を確かめて
 いたところ、実際に出力できたので、自分用に残していた覚書を、同じ疑問を
 持つ方向けにそのまま公開したものです。
@@ -32,7 +32,7 @@
 > 探していただけるのが、この共有の本来の意図です。
 
 **検証日:** 2026-04-18
-**検証者:** TK2LAB, Codex（CLI 側）
+**検証者:** TK2Works, Codex（CLI 側）
 **ホスト OS:** Windows 11
 **ランタイム:** WSL2 上の Ubuntu
 **シェル:** Bash（Windows PowerShell ネイティブ実行は対象外）

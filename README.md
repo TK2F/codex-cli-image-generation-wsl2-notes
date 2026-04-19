@@ -1,6 +1,6 @@
 # Codex CLI で画像生成を試した個人メモ（WSL2 Ubuntu / 2026-04-18 時点）
 
-私（TK2LAB）が Codex と一緒に「Windows 11 の WSL2 Ubuntu + Bash 上で
+私（TK2Works）が Codex と一緒に「Windows 11 の WSL2 Ubuntu + Bash 上で
 `codex` を叩いて、画像生成と画像編集が本当にそのまま通るのか」を確かめて
 いたところ、実際に出力できたので、自分のための覚書として残したものを、
 同じ疑問を持つ皆さん向けに共有するリポジトリです。
@@ -125,7 +125,7 @@ MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
 
 **検証日:** 2026-04-18
 **環境:** Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`
-**検証者:** TK2LAB, Codex（CLI 側）
+**検証者:** TK2Works, Codex（CLI 側）
 
 ## レポジトリの全体像と読み進め方
 
@@ -161,7 +161,7 @@ MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
 
 # Codex CLI Image Generation — Personal Notes (WSL2 Ubuntu, as of 2026-04-18)
 
-I (TK2LAB) was checking with Codex whether `codex` could actually be
+I (TK2Works) was checking with Codex whether `codex` could actually be
 driven for image generation and editing from a WSL2 Ubuntu Bash shell on
 Windows 11. Output did come through, so I wrote up the memo I was
 keeping for myself and am sharing it here for anyone wondering the same
@@ -234,7 +234,7 @@ MIT License. See [LICENSE](LICENSE).
 
 **Date of observation:** 2026-04-18
 **Environment:** Windows 11 + WSL2 + Ubuntu + Bash + `codex-cli 0.121.0`
-**Observers:** TK2LAB and Codex (on the CLI side)
+**Observers:** TK2Works and Codex (on the CLI side)
 
 **2026-04-19 re-test note:** A later follow-up run in the same repo
 confirmed that image generation and editing still worked, but the PNGs
