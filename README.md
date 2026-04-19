@@ -5,6 +5,12 @@
 いたところ、実際に出力できたので、自分のための覚書として残したものを、
 同じ疑問を持つ皆さん向けに共有するリポジトリです。
 
+ChatGPT UI で 1 枚ずつ画像を作るのとは別に、CLI で通ると何が便利かも
+見えてきました。たとえば、複数ジョブのバッチ実行、生成物のファイル管理、
+prompt の履歴化、Git での差分管理、画像アセット制作パイプラインへの組み込み
+といった用途です。このリポジトリは、そうした使い方を公式に推奨するもの
+ではなく、**「本環境ではそこまで試せた」** という実証記録としてまとめています。
+
 ## このリポジトリの位置づけ
 
 このリポジトリは、Codex CLI の画像生成・画像編集まわりについて、Windows 11 + WSL2 Ubuntu + Bash 環境で実際に試した内容をまとめた個人メモです。
@@ -18,6 +24,12 @@
 - 公式確認済み: 公式ドキュメントで確認できる仕様・説明
 - 本環境で動作確認済み: 本検証環境で実際に試し、動作を確認した内容
 - 推定: 検証結果から推測した内容。将来のバージョンでは変わる可能性があります
+
+また、同梱している `codex-image-batch.sh` や JSON spec は、Codex CLI の
+公式ワークフローではなく、私（TK2Works）が検証を繰り返しやすくするために
+置いた補助実装です。`aspect_ratio` や style 系の指定も、CLI のネイティブ
+引数ではなく、この補助スクリプト側で prompt に展開するための shorthand と
+して扱っています。
 
 ## 30秒でわかる、本環境で通った方法
 
@@ -42,6 +54,10 @@ codex exec --enable image_generation "猫の肖像画を描いて"
 本環境では、上記のコマンドで画像生成が動作することを確認しました。
 また、本検証では、縦長 (9:16) / 横長 (16:9) / 正方形 (1:1) の指定でも生成が通ることを確認しました。
 
+まず 1 枚だけ試すなら、この 1 行から始めるのが最短です。補助スクリプトや
+JSON batch は、その後で「複数ジョブを回したい」「prompt と出力をファイルで
+管理したい」と感じたときに読む位置づけです。
+
 **毎回フラグを付けない場合**
 
 本環境では、`~/.codex/config.toml` に以下を追記したところ、毎回 `--enable image_generation` を付けなくても画像生成が通ることを確認しました。
@@ -57,19 +73,27 @@ image_generation = true
 
 本環境では、生成されたPNGが作業ディレクトリではなく、`~/.codex/generated_images/<session-id>/` 配下に保存されることを確認しました。
 
-そのため、このリポジトリの補助スクリプトでは、Codex CLI 実行後に該当セッションディレクトリから生成画像を回収する処理を入れています。詳しい回収手順は [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) にまとめています。
+そのため、このリポジトリの補助スクリプトでは、Codex CLI 実行後に該当
+セッションディレクトリから生成画像を回収する処理を入れています。詳しい
+回収手順は [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) に
+まとめています。
 
 詳しいコマンド全量と再現手順は [QUICKSTART.ja.md](QUICKSTART.ja.md) / [README.ja.md](README.ja.md) にあります。
 
 ## 必要なツールと導入コマンド
 
-上記のコマンドを走らせる前に、WSL2 Ubuntu 側で以下を入れておきます。
+最小の 1 枚生成だけなら、まず必要なのは Codex CLI 本体です。
 
 ```bash
 # Codex CLI 本体（Node.js が必要。本検証では Node v24 を使用）
 npm install -g @openai/codex
 codex --version   # 動作確認
+```
 
+補助スクリプトや JSON batch workflow まで試すなら、WSL2 Ubuntu 側で
+次も入れておきます。
+
+```bash
 # 同梱ヘルパースクリプトや JSON 操作で使う追加パッケージ
 sudo apt update
 sudo apt install -y jq python3 bubblewrap coreutils findutils gawk grep
@@ -120,6 +144,8 @@ MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
   ただし、これは公式ツールではなく、あくまで参考実装です。Codex CLI の
   今後の仕様変更、保存先の変更、並列実行、別セッションとの競合などに
   よって、期待どおりに画像を回収できない可能性があります。
+  JSON 内の `aspect_ratio` や style 系の値も、このスクリプト専用の shorthand
+  であり、Codex CLI の公式パラメータではありません。
 - `examples/codex-image-batch.sample.json` — 生成ジョブのサンプル × 6
 - `examples/codex-image-edit-batch.sample.json` — 編集ジョブのサンプル × 3
 - `examples/input/README.md` — 編集入力用フォルダのプレースホルダ
@@ -144,6 +170,13 @@ Windows 11. Output did come through, so I wrote up the memo I was
 keeping for myself and am sharing it here for anyone wondering the same
 thing.
 
+Separate from making one image at a time in the ChatGPT UI, the CLI path
+looked useful for batch runs, file management, prompt history, Git-based
+diffs, and folding image generation into a broader asset pipeline. This
+repository does not present that as "how Codex CLI should be used." It
+records that, in this environment, those workflow ideas became practical
+enough to test.
+
 ## 30-second walkthrough
 
 > The shortest answer to "How did you actually run image generation with Codex on Windows 11 + WSL2?"
@@ -162,6 +195,10 @@ codex exec --enable image_generation "Portrait of a cat"
 ```
 
 Image generation went through. Portrait (9:16), landscape (16:9), and square (1:1) all worked.
+
+If you only want to confirm that one image can be produced from WSL2,
+start with this one-liner first. The helper script and JSON batch flow
+come later, only if you want repeatability and file-based workflow.
 
 **To enable it persistently without the flag**
 
@@ -182,13 +219,18 @@ Full commands and observations live in [QUICKSTART.en.md](QUICKSTART.en.md) / [R
 
 ## Prerequisites and setup commands
 
-Before running the command above, install the following on WSL2 Ubuntu:
+For the smallest one-image test, install Codex CLI itself first:
 
 ```bash
 # Codex CLI itself (requires Node.js; this run used Node v24)
 npm install -g @openai/codex
 codex --version   # sanity check
+```
 
+If you also want to try the bundled helper script and JSON batch
+workflow, install the extra packages below:
+
+```bash
 # Extra packages used by the bundled helper script and JSON workflows
 sudo apt update
 sudo apt install -y jq python3 bubblewrap coreutils findutils gawk grep
@@ -234,6 +276,9 @@ updated recovery steps.
   running several image jobs from a JSON spec was convenient for my own
   workflow. It is a reference implementation shared as-is, not a
   recommended tool. Cleaner designs almost certainly exist.
+  Values such as `aspect_ratio` and the style shorthands in the sample
+  JSON are repo-local conveniences expanded by the script, not official
+  Codex CLI parameters.
 - `examples/codex-image-batch.sample.json` — six sample generation jobs
 - `examples/codex-image-edit-batch.sample.json` — three sample edit jobs
 - `examples/input/README.md` — placeholder for edit-input images
