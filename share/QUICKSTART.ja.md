@@ -195,7 +195,7 @@ cp ~/.codex/generated_images/"$session_id"/*.png ./recovered-output.png
 bash ./codex-image-batch.sh --doctor
 
 # サンプル spec の prompt と command を表示するだけ（生成はしない）
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 
 # サンプル spec を実際に実行（実行前に確認プロンプトあり）
 bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end

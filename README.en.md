@@ -46,6 +46,11 @@ For the other packages, runtimes, and libraries, see the
 [Environment versions and how to check them](#environment-versions-and-how-to-check-them)
 section below.
 
+One practical note before you start: commands using relative paths such
+as `./examples/...` and `./codex-image-batch.sh` assume you have already
+changed into the root directory of this repository. If you run them from
+somewhere else, file lookups will fail.
+
 ---
 
 ## Contents
@@ -666,7 +671,7 @@ Replace `<your-version>` with the Node version actually installed on your
 machine.
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 `--preview` prints the final prompt and the exact `codex exec` command
@@ -735,6 +740,7 @@ Key points:
 
 Two samples ship with the package:
 
+- `examples/codex-image-preview.sample.json` — smallest preview-friendly sample with no local input images
 - `examples/codex-image-batch.sample.json` — six generation jobs
 - `examples/codex-image-edit-batch.sample.json` — three edit jobs
 
@@ -923,7 +929,7 @@ cp ~/.codex/generated_images/"$session_id"/*.png ./recovered-output.png
 bash ./codex-image-batch.sh --doctor
 
 # Print prompt and command without generating
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 
 # Actually run the sample spec (confirmation prompt appears first)
 bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end

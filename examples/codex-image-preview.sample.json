@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "defaults": {
+    "language": "ja",
+    "codex_model": "gpt-5.4",
+    "output_dir": "./outputs",
+    "constraints": "文字、ロゴ、透かしは入れないでください。"
+  },
+  "jobs": [
+    {
+      "name": "preview_blue_sphere",
+      "mode": "generate",
+      "aspect_ratio": "square",
+      "prompt": "白背景に青い球体を 1 枚描いてください。やわらかい影を入れて、質感はシンプルでクリーンにしてください。"
+    },
+    {
+      "name": "preview_city_poster",
+      "mode": "generate",
+      "aspect_ratio": "portrait",
+      "style_preset": "cinematic",
+      "subject": "雨上がりの夜の都市風景を、縦長ポスターのキービジュアルとして描いてください。",
+      "scene": "ネオンの反射、濡れた地面、奥行きのある構図。"
+    }
+  ]
+}

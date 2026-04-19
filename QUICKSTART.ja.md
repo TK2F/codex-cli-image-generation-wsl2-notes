@@ -177,7 +177,7 @@ bash ./codex-image-batch.sh --doctor
 2. 実行せず、prompt と command だけ確認する
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 3. 問題なければ実行する
@@ -196,6 +196,7 @@ bash ./codex-image-batch.sh --manual --pause-at-end
 
 生成サンプル:
 
+- `examples/codex-image-preview.sample.json`
 - `examples/codex-image-batch.sample.json`
 
 編集サンプル:
@@ -229,9 +230,9 @@ bash ./codex-image-batch.sh --manual --pause-at-end
 
 ### 同梱 sample について 1 点だけ注意
 
-- 一部の sample job は `examples/input/` 配下のローカル入力画像を前提にしています。
-- そのファイルがまだ無い場合、`--preview` や本実行でも、その job は入力画像不足で失敗します。
-- 最初の確認では、まず生成系 job だけ見て、編集系や multi-reference 系は後回しで構いません。
+- `examples/codex-image-preview.sample.json` は、入力画像なしで `--preview` が通る最小サンプルです。
+- `examples/codex-image-batch.sample.json` には multi-reference job が含まれており、`examples/input/` の画像がまだ無いと、その job は `--preview` や本実行で失敗します。
+- 最初の確認では preview 専用 sample を使い、その後で生成系 sample 全体や編集系 sample に進むのが安全です。
 
 ### 初心者向けの進め方
 
@@ -314,7 +315,7 @@ JSON spec は、helper script が値を組み合わせて最終 prompt を作る
 本実行前に `--preview` で確認するのが重要です。
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 `--preview` で確認できるもの:

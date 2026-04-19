@@ -194,7 +194,7 @@ bash ./codex-image-batch.sh --doctor
 2. Print the prompt and command without executing generation
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 3. Run the sample only after the preview looks correct
@@ -213,6 +213,7 @@ bash ./codex-image-batch.sh --manual --pause-at-end
 
 Generation sample:
 
+- `examples/codex-image-preview.sample.json`
 - `examples/codex-image-batch.sample.json`
 
 Editing sample:
@@ -246,11 +247,13 @@ Small example:
 
 ### One practical warning about the bundled sample
 
-- Some sample jobs need local input images under `examples/input/`.
-- If those files are not present yet, `--preview` or a real run can fail
-  with an input-image-not-found error for that job.
-- For a first pass, it is fine to validate the generation-only jobs
-  first and leave the edit or multi-reference jobs for later.
+- `examples/codex-image-preview.sample.json` is the smallest bundled spec
+  that should pass `--preview` without any local input images.
+- `examples/codex-image-batch.sample.json` includes a multi-reference job,
+  so `--preview` or a real run can fail for that job if files under
+  `examples/input/` are not present yet.
+- For a first pass, use the preview-only sample first, then move on to
+  the fuller generation sample or the edit sample.
 
 ### A safe order for beginners
 
@@ -345,7 +348,7 @@ the final prompt is assembled before Codex sees it. That is why
 `--preview` matters.
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 What `--preview` helps you inspect:

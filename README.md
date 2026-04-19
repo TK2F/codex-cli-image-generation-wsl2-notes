@@ -51,21 +51,21 @@ prompt の履歴化、Git での差分管理、画像アセット制作パイプ
 codex exec --enable image_generation "猫の肖像画を描いて"
 ```
 
-![Codex-generated cat portrait](examples/gallery/cat-portrait-codex.png)
+![Codex-generated cat portrait from the short prompt](examples/gallery/cat-portrait-short-prompt.png)
 
 本環境では、上記のコマンドで画像生成が動作することを確認しました。
 また、本検証では、縦長 (9:16) / 横長 (16:9) / 正方形 (1:1) の指定でも生成が通ることを確認しました。
 
-上の画像は、このマシンで Codex が出力した猫の画像です。厳密には、この
-README の 1 行コマンドそのものではなく、同趣旨の少し長い prompt で生成した
-実画像ですが、「Codex CLI 側で猫の画像が出た」例としてここに置いています。
+上の画像は、実際にこの短い 1 行 prompt で生成した猫画像です。
 
-参考までに、今回の画像に近い趣旨を、現時点での書き方に寄せて 1 行にすると
-次のようになります。
+参考までに、次の少し長い prompt でも、より写真寄りの横長猫画像を
+生成できました。
 
 ```bash
 codex exec --enable image_generation "横長 16:9 の写真として、プロのカメラマンがレフ板を使って丁寧に撮影した猫の写真を出力してください。自然な毛並み、やわらかい光、写実的な質感で、文字・ロゴ・透かしは入れないでください。"
 ```
+
+![Codex-generated cat photo example](examples/gallery/cat-portrait-codex.png)
 
 まず 1 枚だけ試すなら、この 1 行から始めるのが最短です。補助スクリプトや
 JSON batch は、その後で「複数ジョブを回したい」「prompt と出力をファイルで
@@ -90,6 +90,17 @@ image_generation = true
 セッションディレクトリから生成画像を回収する処理を入れています。詳しい
 回収手順は [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) に
 まとめています。
+
+```mermaid
+flowchart TD
+  A[Run codex exec] --> B{PNG exists in the working directory?}
+  B -->|Yes| C[Use that file]
+  B -->|No| D[Read session id from Codex output]
+  D --> E[Inspect ~/.codex/generated_images/<session-id>/]
+  E --> F{PNG found there?}
+  F -->|Yes| G[Copy it into the repo or working directory]
+  F -->|No| H[Check the helper-script summary or raw log]
+```
 
 詳しいコマンド全量と再現手順は [QUICKSTART.ja.md](QUICKSTART.ja.md) / [README.ja.md](README.ja.md) にあります。
 
@@ -163,6 +174,7 @@ MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
   よって、期待どおりに画像を回収できない可能性があります。
   JSON 内の `aspect_ratio` や style 系の値も、このスクリプト専用の shorthand
   であり、Codex CLI の公式パラメータではありません。
+- `examples/codex-image-preview.sample.json` — preview 用の最小生成サンプル × 2
 - `examples/codex-image-batch.sample.json` — 生成ジョブのサンプル × 6
 - `examples/codex-image-edit-batch.sample.json` — 編集ジョブのサンプル × 3
 - `examples/input/README.md` — 編集入力用フォルダのプレースホルダ
@@ -296,6 +308,7 @@ updated recovery steps.
   Values such as `aspect_ratio` and the style shorthands in the sample
   JSON are repo-local conveniences expanded by the script, not official
   Codex CLI parameters.
+- `examples/codex-image-preview.sample.json` — two preview-oriented generation jobs
 - `examples/codex-image-batch.sample.json` — six sample generation jobs
 - `examples/codex-image-edit-batch.sample.json` — three sample edit jobs
 - `examples/input/README.md` — placeholder for edit-input images

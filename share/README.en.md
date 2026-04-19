@@ -620,7 +620,7 @@ Replace `<your-version>` with the Node version actually installed on your
 machine.
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 `--preview` prints the final prompt and the exact `codex exec` command
@@ -687,8 +687,9 @@ Key points:
   prompt-driven rather than a documented CLI contract. For character locking or
   multi-reference jobs, spell out the order and purpose in the prompt.
 
-Two samples ship with the package:
+Three samples ship with the package:
 
+- `examples/codex-image-preview.sample.json` — smallest preview-friendly sample with no local input images
 - `examples/codex-image-batch.sample.json` — six generation jobs
 - `examples/codex-image-edit-batch.sample.json` — three edit jobs
 
@@ -877,7 +878,7 @@ cp ~/.codex/generated_images/"$session_id"/*.png ./recovered-output.png
 bash ./codex-image-batch.sh --doctor
 
 # Print prompt and command without generating
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 
 # Actually run the sample spec (confirmation prompt appears first)
 bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end

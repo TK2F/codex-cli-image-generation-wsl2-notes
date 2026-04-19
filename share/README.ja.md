@@ -617,7 +617,7 @@ CODEX_BIN="$HOME/.nvm/versions/node/<your-version>/bin/codex" \
 置き換えてください。
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 `--preview` は、最終 prompt と実行予定の `codex exec` コマンドを表示
@@ -686,8 +686,9 @@ bash ./codex-image-batch.sh --manual --pause-at-end
   ディテール保持を狙う場合は、prompt 側でも順序と役割を書いたほうが
   安全でした。
 
-サンプルは 2 本同梱しています。
+サンプルは 3 本同梱しています。
 
+- `examples/codex-image-preview.sample.json` — 入力画像なしで preview しやすい最小サンプル
 - `examples/codex-image-batch.sample.json` — 生成系 6 ジョブ
 - `examples/codex-image-edit-batch.sample.json` — 編集系 3 ジョブ
 
@@ -876,7 +877,7 @@ cp ~/.codex/generated_images/"$session_id"/*.png ./recovered-output.png
 bash ./codex-image-batch.sh --doctor
 
 # サンプル spec の prompt と command を表示だけ（画像生成はしない）
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 
 # サンプル spec を実行（確認プロンプトあり）
 bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end

@@ -197,7 +197,7 @@ The four commands I used against the script while verifying it:
 bash ./codex-image-batch.sh --doctor
 
 # Print prompts and commands for the sample spec; no generation
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 
 # Actually run the sample spec (a confirmation prompt runs first)
 bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end

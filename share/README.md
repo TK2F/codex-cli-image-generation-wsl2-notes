@@ -46,6 +46,8 @@
 codex exec --enable image_generation "猫の肖像画を描いて"
 ```
 
+![Codex-generated cat portrait from the short prompt](examples/gallery/cat-portrait-short-prompt.png)
+
 本環境では、上記のコマンドで画像生成が動作することを確認しました。
 また、本検証では、縦長 (9:16) / 横長 (16:9) / 正方形 (1:1) の指定でも生成が通ることを確認しました。
 
@@ -63,6 +65,17 @@ image_generation = true
 **保存先に注意**
 
 本環境では、生成されたPNGが作業ディレクトリではなく、`~/.codex/generated_images/<session-id>/` 配下に保存されることを確認しました。回収手順は [docs/RETEST-2026-04-19.md](docs/RETEST-2026-04-19.md) にまとめています。
+
+```mermaid
+flowchart TD
+  A[Run codex exec] --> B{PNG exists in the working directory?}
+  B -->|Yes| C[Use that file]
+  B -->|No| D[Read session id from Codex output]
+  D --> E[Inspect ~/.codex/generated_images/<session-id>/]
+  E --> F{PNG found there?}
+  F -->|Yes| G[Copy it into the repo or working directory]
+  F -->|No| H[Check the run summary or raw log]
+```
 
 詳しいコマンド全量と再現手順は [QUICKSTART.ja.md](QUICKSTART.ja.md) / [README.ja.md](README.ja.md) にあります。
 
@@ -154,6 +167,7 @@ MIT License. 詳細は [LICENSE](LICENSE) を参照してください。
   ただし、これは公式ツールではなく、あくまで参考実装です。Codex CLI の
   今後の仕様変更、保存先の変更、並列実行、別セッションとの競合などに
   よって、期待どおりに画像を回収できない可能性があります。
+- `examples/codex-image-preview.sample.json` — preview 用の最小生成サンプル × 2
 - `examples/codex-image-batch.sample.json` — 生成ジョブのサンプル × 6
 - `examples/codex-image-edit-batch.sample.json` — 編集ジョブのサンプル × 3
 - `examples/input/README.md` — 編集入力用フォルダのプレースホルダ
@@ -311,6 +325,7 @@ updated recovery steps.
   running several image jobs from a JSON spec was convenient for my own
   workflow. It is a reference implementation shared as-is, not a
   recommended tool. Cleaner designs almost certainly exist.
+- `examples/codex-image-preview.sample.json` — two preview-oriented generation jobs
 - `examples/codex-image-batch.sample.json` — six sample generation jobs
 - `examples/codex-image-edit-batch.sample.json` — three sample edit jobs
 - `examples/input/README.md` — placeholder for edit-input images

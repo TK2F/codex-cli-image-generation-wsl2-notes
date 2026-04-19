@@ -40,6 +40,10 @@
 （その他のパッケージ／ランタイム／ライブラリの個別バージョンと
 確認コマンドは、次の「[検証環境のバージョンと確認コマンド](#検証環境のバージョンと確認コマンド)」節にまとめています。）
 
+補足として、`./examples/...` や `./codex-image-batch.sh` のような相対パス付き
+コマンドは、この repo のルートディレクトリへ移動してから実行してください。
+別ディレクトリでそのまま試すと、ファイルが見つからず失敗します。
+
 ---
 
 ## 目次
@@ -627,7 +631,7 @@ CODEX_BIN="$HOME/.nvm/versions/node/<your-version>/bin/codex" \
 置き換えてください。
 
 ```bash
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 ```
 
 `--preview` は、最終 prompt と実行予定の `codex exec` コマンドを表示
@@ -698,6 +702,7 @@ bash ./codex-image-batch.sh --manual --pause-at-end
 
 サンプルは 2 本同梱しています。
 
+- `examples/codex-image-preview.sample.json` — 入力画像なしで preview しやすい最小サンプル
 - `examples/codex-image-batch.sample.json` — 生成系 6 ジョブ
 - `examples/codex-image-edit-batch.sample.json` — 編集系 3 ジョブ
 
@@ -886,7 +891,7 @@ cp ~/.codex/generated_images/"$session_id"/*.png ./recovered-output.png
 bash ./codex-image-batch.sh --doctor
 
 # サンプル spec の prompt と command を表示だけ（画像生成はしない）
-bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --preview
+bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --preview
 
 # サンプル spec を実行（確認プロンプトあり）
 bash ./codex-image-batch.sh --spec ./examples/codex-image-batch.sample.json --pause-at-end
