@@ -23,6 +23,7 @@ included in this shared subset.
 | `blue-sphere-with-enable.png` | 05 | Same blue sphere prompt, but with `--enable image_generation`. | No material behavior difference vs. test 04 in this environment. |
 | `edit-black-and-white.png` | 08 | Make the source image black and white while preserving composition and subject. | Edit succeeded, but the printed output path was still not reliable. |
 | `blue-sphere-full-auto.png` | 09 | Same blue sphere prompt under `--full-auto -c sandbox_workspace_write.network_access=true`. | `network_access=true` did not change the storage behavior. |
+| `preview-blue-sphere-helper.png` | 2026-04-20 helper preview sample | Generate a square blue sphere using the helper-expanded `base_prompt`, `art_style`, and `vars`. | One actual job from `examples/codex-image-preview.sample.json` succeeded, and the helper recovered the PNG from the session-specific generated-images directory. |
 | `cat-portrait-short-prompt.png` | 2026-04-20 short cat prompt | Draw a cat portrait. | Generated from `codex exec --enable image_generation "猫の肖像画を描いて"` and copied from the session-specific generated-images directory. |
 | `cat-portrait-codex.png` | 2026-04-18/19 long cat photo prompt | Create a realistic 16:9 cat photo with soft light and natural fur texture. | This is the longer, photo-oriented cat example shown in the top-level README. |
 
@@ -50,6 +51,18 @@ Use the built-in image editing capability only. Make the image black and white w
 
 ```text
 Use the built-in image generation capability only. Generate a square 1:1 image of a blue sphere on a white background. No text, no logo, no watermark. Copy the final image into the current directory as 09-fullauto.png and explicitly state the output path.
+```
+
+### `preview-blue-sphere-helper.png`
+
+```text
+built-in の画像生成機能だけを使ってください。 プログラムで描いたり、SVG や HTML や canvas で代用したりしないでください。 正方形 1:1、目標サイズは 1024x1024。 新規に画像を生成してください。 全体として ミニマルで静かな な印象にしてください。 白背景に青い球体を 1 枚描いてください。やわらかい影を入れて、質感はシンプルでクリーンにしてください。 ミニマルな商品ビジュアル寄りで、余白と影は整理してください。 文字、ロゴ、透かしは入れないでください。 この環境で可能なら最終画像を現在のディレクトリに preview_blue_sphere.png として保存してください。直接保存できない場合でも、画像生成または編集自体は完了してください。
+```
+
+Session:
+
+```text
+019da77c-d5c7-7881-ac5b-33029276a981
 ```
 
 ### `cat-portrait-short-prompt.png`

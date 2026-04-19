@@ -15,6 +15,9 @@ keeping the existing JSON entry points valid.
 - Refreshed the preview and batch sample JSON files so both the minimal
   sample and the richer sample state aspect ratio and art style
   explicitly.
+- Added one public-safe helper-generated blue-sphere example to the
+  gallery and noted the successful one-job verification flow in the
+  re-test note.
 - Updated the quickstart and re-test notes to describe the prompt
   expansion layer as helper behavior rather than Codex CLI surface area.
 
