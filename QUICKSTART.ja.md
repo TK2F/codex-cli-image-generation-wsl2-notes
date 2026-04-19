@@ -15,10 +15,35 @@ Codex CLI の標準機能ではありません。
 
 - この文書のコマンドは **WSL2 上の Bash 前提** です。
 - Windows PowerShell ネイティブ実行は今回の検証範囲外です。
+- まず **このリポジトリのルートディレクトリへ移動してから** コマンドを実行してください。
+- `./examples/...` や `./codex-image-batch.sh` のような相対パスは、repo の外で実行すると見つかりません。
 - 最初は helper script を使わず、**Codex CLI 単体で 1 枚出るか** を確認するのが安全です。
 - `image_generation` は本環境では最初 `false` に見えましたが、これは公式の初期値として断定していません。
 - 2026-04-19 の追試では、生成 PNG が作業ディレクトリではなく
   `~/.codex/generated_images/<session-id>/` に保存されるケースを確認しました。
+
+### 最初にいる場所を確認する
+
+WSL2 の Ubuntu / Bash で、この repo を clone または展開した場所へ移動してから
+始めてください。たとえば次のようにします。
+
+```bash
+cd /path/to/codex-cli-image-generation-wsl2-notes
+pwd
+ls
+```
+
+`pwd` がこの repo のパスになっていて、`ls` に少なくとも次が見えれば、
+正しい場所です。
+
+- `README.md`
+- `QUICKSTART.ja.md`
+- `codex-image-batch.sh`
+- `examples`
+
+Windows Terminal から入る場合も、まず Ubuntu プロファイルを開いてから
+同じ確認をするのが安全です。`user@host:~$` のような表示なら、まだ
+ホームディレクトリにいる可能性があります。
 
 ## 1. minimum one-shot image generation
 

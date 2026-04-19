@@ -19,6 +19,10 @@ script semantics, and the full set of observations — see
 
 - Every command here assumes **Bash inside WSL2**.
 - Native Windows PowerShell was out of scope for this verification.
+- Start by moving into **the root directory of this repository** before
+  running any commands.
+- Relative paths such as `./examples/...` and `./codex-image-batch.sh`
+  will fail if you run them outside the repo root.
 - The safest first step is to ignore the helper script and confirm that
   **Codex CLI alone can generate one image**.
 - In this environment, `image_generation` initially appeared as `false`,
@@ -26,6 +30,29 @@ script semantics, and the full set of observations — see
 - In the 2026-04-19 re-test, generated PNGs sometimes landed under
   `~/.codex/generated_images/<session-id>/` instead of the working
   directory.
+
+### Confirm where you are before you start
+
+In WSL2 Ubuntu / Bash, change into the directory where you cloned or
+unpacked this repo before doing anything else. For example:
+
+```bash
+cd /path/to/codex-cli-image-generation-wsl2-notes
+pwd
+ls
+```
+
+If `pwd` prints the path to this repo, and `ls` shows at least these
+entries, you are in the right place:
+
+- `README.md`
+- `QUICKSTART.en.md`
+- `codex-image-batch.sh`
+- `examples`
+
+If you are using Windows Terminal, open the Ubuntu profile first and
+then run the same check. A prompt like `user@host:~$` often means you
+are still in your home directory rather than inside the repo.
 
 ## 1. minimum one-shot image generation
 

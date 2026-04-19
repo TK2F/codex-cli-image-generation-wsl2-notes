@@ -93,6 +93,10 @@ image_generation = true
 
 詳しいコマンド全量と再現手順は [QUICKSTART.ja.md](QUICKSTART.ja.md) / [README.ja.md](README.ja.md) にあります。
 
+補足として、`./examples/...` や `./codex-image-batch.sh` のような相対パス付き
+コマンドは、この repo のルートディレクトリへ移動してから実行してください。
+別ディレクトリでそのまま試すと、ファイルが見つからず失敗します。
+
 ## 必要なツールと導入コマンド
 
 最小の 1 枚生成だけなら、まず必要なのは Codex CLI 本体です。

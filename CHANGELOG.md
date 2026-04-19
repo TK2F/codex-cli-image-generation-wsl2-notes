@@ -9,6 +9,8 @@ Refined both quickstart guides to be easier for beginners to follow.
 - `QUICKSTART.ja.md` / `QUICKSTART.en.md` now use the same four-part flow:
   minimum one-shot image generation, JSON batch usage, troubleshooting
   for generated image location, and JSON validation tips.
+- Added clearer repo-root guidance for relative-path commands such as
+  `./examples/...` and `./codex-image-batch.sh`.
 - Added clearer warnings that some bundled sample jobs require local
   input images under `examples/input/`.
 - Added a short note that `tokens used` is log metadata, not proof that
