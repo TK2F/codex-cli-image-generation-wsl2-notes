@@ -695,15 +695,20 @@ bash ./codex-image-batch.sh --manual --pause-at-end
 - `subject` と `scene` に分けて書くと、スクリプトが style・aspect と
   組み合わせて prompt を構築します。prompt を 1 本の文字列で書きたい
   ときは `prompt` フィールドを使うと、そちらが優先されます。
+- `defaults.base_prompt` を置くと、各 job の本文前に共通文を差し込めます。
+  `job.vars` を併用すると `{{name}}` 形式の簡易展開ができます。
+- `art_style` は自由文の画風指定です。最小 sample でも aspect と一緒に
+  明示した方が、出力の有益性を落としにくいです。`style_preset` は従来
+  どおり repo 内 shorthand として残しています。
 - 複数画像を渡したときの「どれが base でどれが reference か」は CLI の
   仕様保証ではなく prompt で明示する前提です。複数キャラ参照や
   ディテール保持を狙う場合は、prompt 側でも順序と役割を書いたほうが
   安全でした。
 
-サンプルは 2 本同梱しています。
+サンプルは「最小で試す用」と「少し重めの展開を試す用」を分けて同梱しています。
 
-- `examples/codex-image-preview.sample.json` — 入力画像なしで preview しやすい最小サンプル
-- `examples/codex-image-batch.sample.json` — 生成系 6 ジョブ
+- `examples/codex-image-preview.sample.json` — 入力画像なしで preview しやすい最小サンプル。aspect / art style も明示しています。
+- `examples/codex-image-batch.sample.json` — 生成系 6 ジョブ。共通 default と job override の両方を含みます。
 - `examples/codex-image-edit-batch.sample.json` — 編集系 3 ジョブ
 
 ## 組み込みプリセット

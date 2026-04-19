@@ -734,14 +734,20 @@ Key points:
 - `subject` and `scene` can be written separately, in which case the
   helper script composes the prompt with the selected aspect and style. If you
   set `prompt` directly, that takes precedence.
+- `defaults.base_prompt` lets you inject one shared instruction before
+  each job body. With `job.vars`, the script performs simple `{{name}}`
+  placeholder expansion.
+- `art_style` is freeform visual guidance. Even the minimal sample is
+  more useful when aspect ratio and art style are both stated explicitly.
+  `style_preset` remains the existing repo-local shorthand.
 - When several images are attached, the "base vs. reference" meaning is
   prompt-driven rather than a documented CLI contract. For character locking or
   multi-reference jobs, spell out the order and purpose in the prompt.
 
-Two samples ship with the package:
+The package intentionally ships both a minimal and a richer sample:
 
-- `examples/codex-image-preview.sample.json` — smallest preview-friendly sample with no local input images
-- `examples/codex-image-batch.sample.json` — six generation jobs
+- `examples/codex-image-preview.sample.json` — smallest preview-friendly sample with no local input images, while still stating aspect and art style explicitly
+- `examples/codex-image-batch.sample.json` — six generation jobs with shared defaults and per-job overrides
 - `examples/codex-image-edit-batch.sample.json` — three edit jobs
 
 ## Built-in presets

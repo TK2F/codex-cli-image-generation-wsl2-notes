@@ -307,9 +307,10 @@ updated recovery steps.
   recommended tool. Cleaner designs almost certainly exist.
   Values such as `aspect_ratio` and the style shorthands in the sample
   JSON are repo-local conveniences expanded by the script, not official
-  Codex CLI parameters.
-- `examples/codex-image-preview.sample.json` — two preview-oriented generation jobs
-- `examples/codex-image-batch.sample.json` — six sample generation jobs
+  Codex CLI parameters. The current helper also supports shared
+  `base_prompt`, freeform `art_style`, and simple `{{var}}` expansion.
+- `examples/codex-image-preview.sample.json` — two preview-oriented generation jobs, kept intentionally small while still stating aspect and art style
+- `examples/codex-image-batch.sample.json` — six sample generation jobs with shared defaults and job-level overrides
 - `examples/codex-image-edit-batch.sample.json` — three sample edit jobs
 - `examples/input/README.md` — placeholder for edit-input images
 - `examples/gallery/README.md` — selected public-facing re-test images

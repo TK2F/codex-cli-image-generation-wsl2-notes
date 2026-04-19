@@ -4,6 +4,8 @@
     "language": "ja",
     "codex_model": "gpt-5.4",
     "output_dir": "./outputs",
+    "base_prompt": "全体として {{mood}} な印象にしてください。",
+    "art_style": "出力用途が分かる比率と、意図が読み取りやすい画づくりを優先してください。",
     "constraints": "文字、ロゴ、透かしは入れないでください。"
   },
   "jobs": [
@@ -11,13 +13,20 @@
       "name": "preview_blue_sphere",
       "mode": "generate",
       "aspect_ratio": "square",
+      "art_style": "ミニマルな商品ビジュアル寄りで、余白と影は整理してください。",
+      "vars": {
+        "mood": "ミニマルで静かな"
+      },
       "prompt": "白背景に青い球体を 1 枚描いてください。やわらかい影を入れて、質感はシンプルでクリーンにしてください。"
     },
     {
       "name": "preview_city_poster",
       "mode": "generate",
       "aspect_ratio": "portrait",
-      "style_preset": "cinematic",
+      "art_style": "映画ポスター寄りの光と空気感を強めてください。",
+      "vars": {
+        "mood": "湿度のあるシネマティック"
+      },
       "subject": "雨上がりの夜の都市風景を、縦長ポスターのキービジュアルとして描いてください。",
       "scene": "ネオンの反射、濡れた地面、奥行きのある構図。"
     }

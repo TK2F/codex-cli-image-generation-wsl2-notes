@@ -4,6 +4,9 @@
     "language": "ja",
     "codex_model": "gpt-5.4",
     "output_dir": "./outputs",
+    "aspect_ratio": "square",
+    "base_prompt": "全体として {{mood}} な雰囲気で、{{quality_note}} を重視してください。",
+    "art_style": "自然な立体感と、過度に人工的でない描写にしてください。",
     "constraints": "文字、ロゴ、透かしは入れないでください。"
   },
   "jobs": [
@@ -12,6 +15,10 @@
       "mode": "generate",
       "aspect_ratio": "portrait",
       "style_preset": "cinematic",
+      "vars": {
+        "mood": "静かで映画的",
+        "quality_note": "濡れた地面の反射と空気感"
+      },
       "subject": "雨上がりの夜の東京の路地に立つ主人公を、シネマティックなキービジュアルとして描いてください。",
       "scene": "ネオン反射、濡れた地面、奥行きのある構図。"
     },
@@ -20,6 +27,7 @@
       "mode": "generate",
       "language": "en",
       "aspect_ratio": "square",
+      "art_style": "Keep the image elegant, premium, and grounded in realistic product photography.",
       "style_preset": "product_render",
       "prompt": "Create a luxury product photo of a perfume bottle on a dark background with dramatic lighting, elegant reflections, and premium advertising quality."
     },
@@ -28,6 +36,10 @@
       "mode": "generate",
       "aspect_ratio": "landscape",
       "style_preset": "cinematic",
+      "vars": {
+        "mood": "壮大で乾いた未来感",
+        "quality_note": "広い遠景の読みやすさ"
+      },
       "subject": "近未来の砂漠都市を見下ろすSFキービジュアルを作ってください。",
       "scene": "壮大なスケール、夕景、空気遠近法。"
     },
@@ -36,12 +48,16 @@
       "mode": "generate",
       "language": "en",
       "aspect_ratio": "portrait",
+      "vars": {
+        "mood": "fresh and editorial",
+        "quality_note": "natural light and tactile surface detail"
+      },
       "prompt": "Create a premium food photograph of ripe strawberries with soft natural light, shallow depth of field, vivid texture, and an elegant editorial atmosphere."
     },
     {
       "name": "anime_character_bluecoat",
       "mode": "generate",
-      "aspect_ratio": "square",
+      "art_style": "アニメ調として読みやすい塗りと、落ち着いた色設計にしてください。",
       "subject": "アニメ調の女性キャラクターの全身ビジュアルを生成してください。",
       "scene": "青いコート、白いインナー、黒いブーツ、落ち着いた色調、無地背景。"
     },
@@ -54,6 +70,10 @@
         "./input/character-main.png",
         "./input/character-detail.png"
       ],
+      "vars": {
+        "mood": "clean studio",
+        "quality_note": "identity preservation"
+      },
       "prompt": "Use the reference images meticulously as the main visual character while preserving the unique visual identity, silhouette, hairstyle, facial features, outfit cues, and overall recognizability. Treat the first reference image as the primary design anchor and the second as a supporting detail sheet. Create a polished vertical key visual with a clean studio background. No text, no logo, no watermark."
     }
   ]

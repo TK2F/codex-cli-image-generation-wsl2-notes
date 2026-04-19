@@ -1,19 +1,52 @@
 # Changelog
 
+## 2026-04-20 — batch prompt expansion helpers
+
+Extended the batch helper with a small prompt-expansion layer while
+keeping the existing JSON entry points valid.
+
+**Updates**
+
+- `codex-image-batch.sh` / `share/codex-image-batch.sh` now support
+  `defaults.base_prompt`, `defaults.aspect_ratio`, `defaults.art_style`,
+  per-job `aspect_ratio` / `art_style`, and `job.vars`.
+- `--preview` now shows the fully expanded prompt after helper-side
+  assembly.
+- Refreshed the preview and batch sample JSON files so both the minimal
+  sample and the richer sample state aspect ratio and art style
+  explicitly.
+- Updated the quickstart and re-test notes to describe the prompt
+  expansion layer as helper behavior rather than Codex CLI surface area.
+
+## 2026-04-20 — quickstart refresh
+
+Refined both quickstart guides to be easier for beginners to follow.
+
+**Updates**
+
+- `QUICKSTART.ja.md` / `QUICKSTART.en.md` now use the same four-part flow:
+  minimum one-shot image generation, JSON batch usage, troubleshooting
+  for generated image location, and JSON validation tips.
+- Added clearer repo-root guidance for relative-path commands such as
+  `./examples/...` and `./codex-image-batch.sh`.
+- Added clearer warnings that some bundled sample jobs require local
+  input images under `examples/input/`.
+- Added a short note that `tokens used` is log metadata, not proof that
+  the PNG exists in the current working directory.
+
 ## 2026-04-19 — initial public share
 
-First public share-package cut of a personal verification memo by TK2Works
-and Codex, covering what was observed on 2026-04-18 in a WSL2 Ubuntu
-Bash shell on Windows 11 with `codex-cli 0.121.0`, plus a 2026-04-19
-re-test.
+First public share of a personal verification memo by TK2Works and Codex,
+covering what was observed on 2026-04-18 in a WSL2 Ubuntu Bash shell on
+Windows 11 with `codex-cli 0.121.0`, plus a 2026-04-19 re-test.
 
 **Contents**
 
 - `README.md` / `README.ja.md` / `README.en.md` — bilingual landing and
   per-language write-up: environment versions and how to check them, the
-  two methods used to enable `image_generation`, smallest working
-  command, aspect-ratio behavior, JSON spec shape, and a review of
-  common claims against what was actually observed.
+  two methods used to enable `image_generation`, smallest working command,
+  aspect-ratio behavior, JSON spec shape, and a review of common claims
+  against what was actually observed.
 - `QUICKSTART.ja.md` / `QUICKSTART.en.md` — reproduction quickstart with
   the environment, an official-docs-first setup flow, commands run
   verbatim, and helper-script usage.
@@ -27,15 +60,16 @@ re-test.
 - `examples/codex-image-edit-batch.sample.json` — image-edit job samples.
 - `examples/input/README.md` — placeholder folder for edit-input images.
 - `examples/gallery/README.md` and `examples/gallery/*.png` — a small,
-  metadata-stripped gallery of re-test outputs with prompt notes.
+  metadata-stripped gallery of the re-test outputs with prompt notes.
 - `docs/RETEST-2026-04-19.md` — public-safe summary of the 2026-04-19
   re-test: what still held up, what had to be reframed, and manual
   recovery for PNGs that landed under
   `~/.codex/generated_images/<session-id>/`.
+- `.github/workflows/ci.yml` — `bash -n`, `shellcheck`, and sample-JSON
+  validation for the helper script.
 - `LICENSE` — MIT.
-- `.gitignore` — excludes helper-script outputs, raw logs, run
-  summaries, local env / secrets, editor/OS noise, and local
-  Codex/Claude state.
+- `.gitignore` — excludes helper-script outputs, raw logs, run summaries,
+  local env / secrets, editor/OS noise, and local Codex/Claude state.
 
 **Key observations captured here**
 

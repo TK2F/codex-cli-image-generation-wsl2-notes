@@ -356,14 +356,20 @@ What `--preview` helps you inspect:
 - the final prompt that will be sent to Codex
 - the `codex exec` command that is about to run
 - resolved input-image paths
+- the expanded result after `base_prompt`, `aspect_ratio`, `art_style`, and `vars`
 
 ### Things to watch when writing your own spec
 
 - Relative paths are resolved from the **spec file's directory**.
 - `mode: "edit"` requires `input_image` or `input_images`.
 - If you provide `prompt` directly, it takes priority.
+- Even the smallest sample is clearer when `aspect_ratio` and `art_style` are explicit.
+- `defaults.base_prompt` is inserted before each job's main prompt body.
+- `defaults.aspect_ratio` and `defaults.art_style` act as fallback values unless a job overrides them.
+- `job.vars` is a simple `{{name}}` replacement map. Unknown keys are left unchanged.
 - If you split content into `subject` and `scene`, the script assembles
   the final prompt from those pieces.
+- `art_style` is freeform visual guidance, while `style_preset` remains a repo-local shorthand.
 - For multiple images, prompt wording still matters because image roles
   are not guaranteed by documented CLI semantics.
 

@@ -1,5 +1,23 @@
 # Changelog
 
+## 2026-04-20 — batch prompt expansion helpers
+
+Extended the batch helper with a small prompt-expansion layer while
+keeping the existing JSON entry points valid.
+
+**Updates**
+
+- `codex-image-batch.sh` / `share/codex-image-batch.sh` now support
+  `defaults.base_prompt`, `defaults.aspect_ratio`, `defaults.art_style`,
+  per-job `aspect_ratio` / `art_style`, and `job.vars`.
+- `--preview` now shows the fully expanded prompt after helper-side
+  assembly.
+- Refreshed the preview and batch sample JSON files so both the minimal
+  sample and the richer sample state aspect ratio and art style
+  explicitly.
+- Updated the quickstart and re-test notes to describe the prompt
+  expansion layer as helper behavior rather than Codex CLI surface area.
+
 ## 2026-04-20 — quickstart refresh
 
 Refined both quickstart guides to be easier for beginners to follow.

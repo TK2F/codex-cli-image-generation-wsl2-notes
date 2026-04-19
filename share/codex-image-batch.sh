@@ -764,18 +764,35 @@ build_prompt() {
   local output_file_name="$2"
 
   python3 - <<'PY' "$job_json" "$output_file_name"
-import json, sys
+import json, re, sys
 job = json.loads(sys.argv[1])
 output = sys.argv[2]
 language = (job.get("language") or "ja").strip().lower()
 mode = (job.get("mode") or "generate").strip().lower()
-prompt_override = (job.get("prompt") or "").strip()
-subject = (job.get("subject") or "").strip()
-scene = (job.get("scene") or "").strip()
-style_custom = (job.get("style_custom") or "").strip()
-constraints = (job.get("constraints") or "").strip()
-aspect = (job.get("aspect_prompt") or "").strip()
-style = (job.get("style_prompt") or "").strip()
+vars_map = job.get("vars") or {}
+
+if not isinstance(vars_map, dict):
+    raise SystemExit("vars must be an object when provided.")
+
+VAR_PATTERN = re.compile(r"\{\{\s*([A-Za-z0-9_.-]+)\s*\}\}")
+
+def expand(value: object) -> str:
+    if value is None:
+        return ""
+    text = str(value).strip()
+    if not text:
+        return ""
+    return VAR_PATTERN.sub(lambda m: str(vars_map.get(m.group(1), m.group(0))), text)
+
+base_prompt = expand(job.get("base_prompt"))
+prompt_override = expand(job.get("prompt"))
+subject = expand(job.get("subject"))
+scene = expand(job.get("scene"))
+art_style = expand(job.get("art_style"))
+style_custom = expand(job.get("style_custom"))
+constraints = expand(job.get("constraints"))
+aspect = expand(job.get("aspect_prompt"))
+style = expand(job.get("style_prompt"))
 
 if not prompt_override and not subject:
     raise SystemExit("Either prompt or subject is required.")
@@ -787,14 +804,20 @@ if language == "ja":
         aspect,
         "添付画像を編集してください。" if mode == "edit" else "新規に画像を生成してください。",
     ]
+    if base_prompt:
+        parts.append(base_prompt)
     if prompt_override:
         parts.append(prompt_override)
+        if art_style:
+            parts.append(art_style)
     else:
         parts.append(subject)
         if scene:
             parts.append(scene)
         if style:
             parts.append(style)
+        if art_style:
+            parts.append(art_style)
         if style_custom:
             parts.append(style_custom)
     parts.append(constraints or "文字、ロゴ、透かしは入れないでください。")
@@ -806,14 +829,20 @@ else:
         aspect,
         "Edit the attached image." if mode == "edit" else "Generate a new image.",
     ]
+    if base_prompt:
+        parts.append(base_prompt)
     if prompt_override:
         parts.append(prompt_override)
+        if art_style:
+            parts.append(art_style)
     else:
         parts.append(subject)
         if scene:
             parts.append(scene)
         if style:
             parts.append(style)
+        if art_style:
+            parts.append(art_style)
         if style_custom:
             parts.append(style_custom)
     parts.append(constraints or "No text, no logo, no watermark.")

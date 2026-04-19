@@ -323,13 +323,19 @@ bash ./codex-image-batch.sh --spec ./examples/codex-image-preview.sample.json --
 - 最終的に Codex に渡す prompt
 - 実行予定の `codex exec` コマンド
 - 入力画像パスの解決結果
+- `base_prompt` / `aspect_ratio` / `art_style` / `vars` 展開後の状態
 
 ### spec を書くときの注意
 
 - 相対パスは **spec ファイルの場所基準** で解決されます。
 - `mode: "edit"` では `input_image` または `input_images` が必要です。
 - `prompt` を直接書くと、それが優先されます。
+- 最小 sample でも、`aspect_ratio` と `art_style` は明示しておく方が安全です。
+- `defaults.base_prompt` は各 job の本文前に差し込まれます。
+- `defaults.aspect_ratio` / `defaults.art_style` は job 側で未指定のときの既定値です。
+- `job.vars` は `{{name}}` 形式の簡易置換です。未定義キーはそのまま残ります。
 - `subject` と `scene` に分けた場合は、スクリプトがそれらを組み合わせて prompt を作ります。
+- `art_style` は自由文の画風指定、`style_preset` は repo 内 shorthand です。
 - 複数画像の役割は CLI 仕様ではなく prompt で明示する前提です。
 
 ### 迷ったときの安全策
