@@ -15,7 +15,7 @@ For the longer write-up — environment details, aspect-ratio behavior,
 script semantics, and the full set of observations — see
 [README.en.md](README.en.md).
 
-## 0. What to know first
+## What to know first
 
 - Every command here assumes **Bash inside WSL2**.
 - Native Windows PowerShell was out of scope for this verification.
@@ -27,12 +27,13 @@ script semantics, and the full set of observations — see
   `~/.codex/generated_images/<session-id>/` instead of the working
   directory.
 
-## 1. Minimum one-shot image generation
+## 1. minimum one-shot image generation
 
-### 1-1. Minimum setup
+The first goal is simple: **confirm that one image can be generated
+without the helper script**. Once that works, batch usage becomes much
+easier to reason about.
 
-If you only want to confirm a single image can be generated, you mainly
-need these three things:
+### What you need
 
 - WSL2 Ubuntu
 - Node.js and Codex CLI
@@ -48,7 +49,7 @@ codex features list
 In my environment, `codex --version` returned `codex-cli 0.121.0`, and
 `codex features list` showed the current state of `image_generation`.
 
-### 1-2. Enabling `image_generation`
+### Enabling `image_generation`
 
 Three methods worked in this environment.
 
@@ -72,11 +73,11 @@ codex exec --enable image_generation -
 ```
 
 In the later re-test, Method C behaved like a practical no-op once the
-feature was already enabled in config. The safest pattern is to check
-`codex features list` first, then choose the path that matches your
-current state.
+feature was already enabled in config. For beginners, the safest pattern
+is to check `codex features list` first, then choose the path that
+matches the current state.
 
-### 1-3. The first one-liner to try
+### The first one-liner to try
 
 Small English prompt example:
 
@@ -93,7 +94,7 @@ printf 'built-in の画像生成機能だけを使ってください。\n正方�
 At this stage, the goal is simple: confirm that **one image comes out at
 all**. Leave batch runs and helper tooling for later.
 
-### 1-4. If you also want one editing test
+### If you also want one editing test
 
 One input image:
 
@@ -115,9 +116,20 @@ Important note:
 - The safer reading is that the prompt was interpreted that way in this
   run.
 
+### The shortest safe path for beginners
+
+1. Check `codex --version`
+2. Check `codex features list`
+3. If needed, use `config.toml` or `--enable image_generation`
+4. Generate one image with a single one-liner
+5. Confirm where the PNG actually landed
+
 ## 2. JSON batch usage
 
-### 2-1. This is a repo-local helper flow, not an official Codex workflow
+Once the one-shot flow works, move to JSON batch only if you actually
+want to run multiple jobs.
+
+### This is a repo-local helper flow, not an official Codex workflow
 
 `codex-image-batch.sh` is a small Bash helper I wrote because repeatedly
 testing multiple jobs by hand became tedious. It is not an official
@@ -127,7 +139,7 @@ The JSON values used by that script, such as `aspect_ratio` and the
 style shorthands, are not official Codex CLI parameters. They are
 **repo-local shorthand values** that the script expands into prompts.
 
-### 2-2. Extra dependencies for batch runs
+### Extra dependencies for batch runs
 
 If you want to try batch mode too, install these on top of the minimum
 setup:
@@ -139,12 +151,12 @@ sudo apt install -y jq python3 bubblewrap coreutils findutils gawk grep
 
 Rough role split:
 
-- `jq`, `python3`: JSON reading and validation
+- `jq`, `python3`: JSON reading and syntax validation
 - `bubblewrap`: Linux / WSL prerequisite checks around Codex sandboxing
 - `coreutils`, `findutils`, `gawk`, `grep`: support commands used by
   the helper script
 
-### 2-3. The first three steps
+### The first three steps
 
 1. Run diagnostics only
 
@@ -170,7 +182,7 @@ If you want one interactive job without writing JSON:
 bash ./codex-image-batch.sh --manual --pause-at-end
 ```
 
-### 2-4. How to read the sample JSON
+### How to read the sample JSON
 
 Generation sample:
 
@@ -205,9 +217,28 @@ Small example:
 }
 ```
 
-## 3. Troubleshooting generated image location
+### One practical warning about the bundled sample
 
-### 3-1. The main thing to know
+- Some sample jobs need local input images under `examples/input/`.
+- If those files are not present yet, `--preview` or a real run can fail
+  with an input-image-not-found error for that job.
+- For a first pass, it is fine to validate the generation-only jobs
+  first and leave the edit or multi-reference jobs for later.
+
+### A safe order for beginners
+
+1. Start with one one-shot image
+2. Then run `--doctor`
+3. Then run `--preview`
+4. Then run the sample JSON
+5. Only after that, write your own JSON
+
+## 3. troubleshooting for generated image location
+
+The most confusing failure mode in this repo is: **the image appears to
+have been generated, but you cannot find the PNG where you expected**.
+
+### The main thing to know
 
 In the 2026-04-19 re-test, Codex sometimes printed an output location
 that did not match where the PNG actually ended up.
@@ -218,32 +249,52 @@ The location I could confirm in this environment was:
 ~/.codex/generated_images/<session-id>/ig_*.png
 ```
 
-### 3-2. The order I would check
+### The order I would check
 
 1. Look for the PNG in the current working directory
 2. Look for `session id:` in the Codex output
 3. Inspect `~/.codex/generated_images/<session-id>/`
 4. If you used the helper script, also inspect the run summary JSON
 
-### 3-3. Manual recovery example
+### Manual recovery example
 
 ```bash
 session_id="019da255-d906-7831-8a2d-0912b86d3e00"
 cp ~/.codex/generated_images/"$session_id"/*.png ./recovered-output.png
 ```
 
-### 3-4. Common misunderstandings
+### Common misunderstandings
 
-- The printed "Output path" did not always correspond to a real file in
+- The printed `Output path` did not always correspond to a real file in
   this environment.
 - Even when using the helper script, the script may end up recovering
   from `~/.codex/generated_images`.
 - Parallel runs increase the chance of grabbing the wrong image. A
   session-specific recovery path is safer when available.
+- A `tokens used` line can appear in the Codex log even when the PNG did
+  not land in the current directory. Treat it as run metadata, not as
+  proof that the file exists where you expected.
+
+### Where I would look first when something fails
+
+- `codex` not found: nvm initialization may not be active in the current
+  shell. Open a fresh terminal or check `~/.bashrc`.
+- `image_generation` still looks disabled: re-check `codex features list`
+  and then choose between `config.toml`, `codex features enable`, and
+  per-run `--enable image_generation`.
+- PNG missing where expected: check
+  `~/.codex/generated_images/<session-id>/` first.
+- `bubblewrap` warning: on Ubuntu, `sudo apt install -y bubblewrap`
+  added it in my environment.
+- PowerShell rejects the command: every command here assumes WSL Bash,
+  not native PowerShell.
 
 ## 4. JSON validation tips
 
-### 4-1. Check syntax first
+Once you move to JSON batch, the safest pattern is **do not start with a
+real run**. First make sure the JSON itself is not broken.
+
+### Check syntax first
 
 With `jq`:
 
@@ -259,7 +310,7 @@ python3 -m json.tool ./examples/codex-image-batch.sample.json >/dev/null
 
 If either command exits quietly, the JSON syntax is at least valid.
 
-### 4-2. Use `--preview` before real execution
+### Use `--preview` before real execution
 
 Valid JSON does not guarantee the final prompt is what you intended.
 This repo's JSON format is interpreted by the helper script, which means
@@ -276,7 +327,7 @@ What `--preview` helps you inspect:
 - the `codex exec` command that is about to run
 - resolved input-image paths
 
-### 4-3. Things to watch when writing your own spec
+### Things to watch when writing your own spec
 
 - Relative paths are resolved from the **spec file's directory**.
 - `mode: "edit"` requires `input_image` or `input_images`.
@@ -286,29 +337,14 @@ What `--preview` helps you inspect:
 - For multiple images, prompt wording still matters because image roles
   are not guaranteed by documented CLI semantics.
 
-### 4-4. A safe order for beginners
+### A simple safe pattern
 
-1. Start with one one-shot image
-2. Then run `--doctor`
-3. Then run `--preview`
-4. Then run the sample JSON
-5. Only after that, write your own JSON
+1. Run the sample JSON through `jq` or `python3 -m json.tool`
+2. Use `--preview` and inspect the prompt visually
+3. Edit your own JSON in small steps
+4. Re-check after each small change
 
-## 5. Where I would look first when something fails
-
-- `codex` not found: nvm initialization may not be active in the current
-  shell. Open a fresh terminal or check `~/.bashrc`.
-- `image_generation` still looks disabled: re-check `codex features list`
-  and then choose between `config.toml`, `codex features enable`, and
-  per-run `--enable image_generation`.
-- PNG missing where expected: check
-  `~/.codex/generated_images/<session-id>/` first.
-- `bubblewrap` warning: on Ubuntu, `sudo apt install -y bubblewrap`
-  added it in my environment.
-- PowerShell rejects the command: every command here assumes WSL Bash,
-  not native PowerShell.
-
-## 6. Closing note
+## Closing note
 
 This document reflects what I observed in this environment on
 2026-04-18 / 2026-04-19. Differences on your side are entirely possible.
